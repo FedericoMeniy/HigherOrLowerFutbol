@@ -3,12 +3,19 @@ package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Data
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "tipo_torneo")
 
 public class Torneo {
 
@@ -22,6 +29,7 @@ public class Torneo {
 
     @ManyToMany
     private List<Jugador> jugadores;
-    private int premio;
 
+    @ManyToOne
+    private Jugador creador;
 }
