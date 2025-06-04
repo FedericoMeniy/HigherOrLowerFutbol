@@ -3,6 +3,7 @@ package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.controller;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service.FutbolApiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +17,12 @@ public class FutbolController {
 
     public FutbolController(FutbolApiService futbolApiService) {
         this.futbolApiService = futbolApiService;
+    }
+
+    @GetMapping("/jugador/id/{jugadorId}/temporada/{temporadaId}")
+    public ResponseEntity<String>jugadorPorId(@PathVariable int jugadorId, @PathVariable int temporadaId){
+        String json = futbolApiService.obtenerJugadorPorId(jugadorId, temporadaId);
+        return ResponseEntity.ok(json);
     }
 
     @GetMapping("/{ligaId}/{temporada}")

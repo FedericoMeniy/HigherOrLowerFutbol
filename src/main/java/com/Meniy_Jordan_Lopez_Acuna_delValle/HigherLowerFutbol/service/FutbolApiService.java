@@ -11,6 +11,25 @@ public class FutbolApiService {
     private final String API_KEY = "9909b6a71e75872ff7f27fbb99fb3801";
     private final RestTemplate restTemplate = new RestTemplate();
 
+    //Obtener jugador por id
+    public String obtenerJugadorPorId(int jugadorId, int temporada) {
+        String url = API_URL + "/players?id=" + jugadorId + "&season=" + temporada;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("x-apisports-key", API_KEY);
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                entity,
+                String.class
+        );
+
+        return response.getBody();
+    }
+
     public String obtenerEquiposPorLiga(int ligaId, int temporada) {
         String url = API_URL + "/teams?league=" + ligaId + "&season=" + temporada;
 
@@ -29,23 +48,6 @@ public class FutbolApiService {
         return response.getBody();
     }
 
-    public String obtenerEstadisticaJugador(int jugadorId, int temporadaId){
-        String url = API_URL + "players?id=" + jugadorId + "&season=" + temporadaId;
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("x-apisports-key", API_KEY);
-
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<String> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                entity,
-                String.class
-        );
-
-        return response.getBody();
-    }
 
     public String obtenerJugadorPorLiga(int equipoId){
         String url = API_URL + "/players/squads?team=" + equipoId;
