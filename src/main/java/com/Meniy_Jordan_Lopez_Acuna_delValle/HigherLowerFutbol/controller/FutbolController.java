@@ -37,9 +37,13 @@ public class FutbolController {
         return ResponseEntity.ok(json);
     }
 
+    /*
     @GetMapping("/jugador/{jugadorId}/temporada/{temporadaId}")
     public ResponseEntity<String>obtenerJugadorEstadi(@PathVariable int jugadorId, @PathVariable int temporadaId){
         String json = futbolApiService.obtenerEstadisticaJugador(jugadorId, temporadaId);
         return ResponseEntity.ok(json);
     }
+     */
+
+
 }

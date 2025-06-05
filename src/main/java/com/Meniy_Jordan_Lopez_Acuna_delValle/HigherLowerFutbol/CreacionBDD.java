@@ -14,7 +14,7 @@ public class CreacionBDD {
         try (Connection conexion = DriverManager.getConnection(url, usuario, password);
              Statement stmt = conexion.createStatement()) {
 
-            String sql = "CREATE DATABASE IF NOT EXISTS futbolFantasy";
+            String sql = "CREATE DATABASE IF NOT EXISTS HigherLowerFutbol";
             stmt.executeUpdate(sql);
             System.out.println("Base de datos creada o ya existía.");
 
