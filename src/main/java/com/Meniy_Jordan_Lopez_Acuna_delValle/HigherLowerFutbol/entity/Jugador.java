@@ -40,7 +40,8 @@ public class Jugador {
     @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
     private int puntaje = 0;
 
-    //private List<Torneo> torneos;
+    @OneToMany
+    private List<Torneo> torneos;
 
 }
 

@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 
-@DiscriminatorValue("AMIGO")
+@DiscriminatorValue("ADMIN")     /// antes estaba como "AMIGO"
 public class TorneoAdmin extends Torneo{
 
     @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")

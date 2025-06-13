@@ -7,9 +7,9 @@ import java.sql.Statement;
 public class CreacionBDD {
 
     public static void crearBaseDatos() {
-        String url = "jdbc:mysql://172.16.1.64/"; //Cambiar ip de acuerdo al lugar
-        String usuario = "bdd1";
-        String password = "bdd1";
+        String url = "jdbc:mysql://localhost::3306/HigherLowerFutbol"; //Cambiar ip de acuerdo al lugar
+        String usuario = "root";
+        String password = "root";
 
         try (Connection conexion = DriverManager.getConnection(url, usuario, password);
              Statement stmt = conexion.createStatement()) {

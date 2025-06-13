@@ -28,7 +28,13 @@ public class Torneo {
     private String nombre;
 
     @ManyToMany
+    @JoinTable(
+            name = "torneo_jugador",
+            joinColumns = @JoinColumn(name = "torneo_id"),
+            inverseJoinColumns = @JoinColumn(name = "jugador_id")     /// Probando cosas
+    )
     private List<Jugador> jugadores;
+
 
     @ManyToOne
     private Jugador creador;

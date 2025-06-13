@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 
-@DiscriminatorValue("ADMIN")
+@DiscriminatorValue("AMIGO")        /// Antes estaba como "ADMIN"
 public class TorneoAmigos extends Torneo{
 
     @NotBlank(message = "La contraseña no puede ser nulo")
