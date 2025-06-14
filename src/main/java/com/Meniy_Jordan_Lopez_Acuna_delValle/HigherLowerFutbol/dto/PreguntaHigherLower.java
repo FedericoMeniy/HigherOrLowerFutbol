@@ -3,7 +3,6 @@ import lombok.Data;
 
 import java.util.Random;
 
-@Data
 public enum PreguntaHigherLower {
 
     MAS_GOLES("¿Tiene más goles?"),
