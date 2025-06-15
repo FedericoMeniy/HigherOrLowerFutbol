@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/auth/register",
                                 "/auth/login",
+                                "/auth/logout",
                                 "/apii/futbol/**" // <-- AÑADE ESTA LÍNEA
                         ).permitAll()
                         .anyRequest().authenticated()
