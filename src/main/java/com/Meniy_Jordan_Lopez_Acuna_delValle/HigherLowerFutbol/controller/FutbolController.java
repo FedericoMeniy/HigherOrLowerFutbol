@@ -1,22 +1,25 @@
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.controller;
 
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service.FutbolApiService;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service.FutbolistaDataSyncService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
 
 @RestController
 @RequestMapping("/apii/futbol")
 public class FutbolController {
 
     private FutbolApiService futbolApiService;
+    private FutbolistaDataSyncService syncService;
 
-    public FutbolController(FutbolApiService futbolApiService) {
+    @Autowired
+    public FutbolController(FutbolApiService futbolApiService, FutbolistaDataSyncService syncService) {
         this.futbolApiService = futbolApiService;
+        this.syncService = syncService;
     }
 
     @GetMapping("/jugador/id/{jugadorId}/temporada/{temporadaId}")
@@ -35,6 +38,20 @@ public class FutbolController {
     public ResponseEntity<String> traerJugadores(@PathVariable int equipoId){
         String json = futbolApiService.obtenerJugadorPorLiga(equipoId);
         return ResponseEntity.ok(json);
+    }
+
+    @PostMapping("/sync/equipo/{equipoId}/temporada/{temporada}")
+    public ResponseEntity<String> sincronizarEquipo(
+            @PathVariable int equipoId,
+            @PathVariable int temporada) {
+        try {
+            // Ahora 'syncService' es reconocido y no dará error
+            syncService.sincronizarJugadoresDeEquipo(equipoId, temporada);
+            return ResponseEntity.ok("Sincronización del equipo " + equipoId + " iniciada correctamente.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error durante la sincronización: " + e.getMessage());
+        }
     }
 
     /*

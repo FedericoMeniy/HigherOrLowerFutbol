@@ -15,6 +15,8 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 public class SecurityConfig {
+
+    /*
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -27,6 +29,28 @@ public class SecurityConfig {
 
         return http.build();
     }
+    */
+
+    /// TEMPORALMENTE DEJAR ESTO: no me dejaba usar bien las cosas porque siempre me aparecia lo de spring security
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        // MODIFICAR ESTA SECCIÓN PARA AÑADIR LA NUEVA RUTA
+                        .requestMatchers(
+                                "/auth/register",
+                                "/auth/login",
+                                "/apii/futbol/**" // <-- AÑADE ESTA LÍNEA
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .formLogin(withDefaults());
+
+        return http.build();
+    }
+
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
