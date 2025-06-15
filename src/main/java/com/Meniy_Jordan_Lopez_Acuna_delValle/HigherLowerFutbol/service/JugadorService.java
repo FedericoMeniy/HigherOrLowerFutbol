@@ -19,18 +19,27 @@ public class JugadorService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    // MÉTODO ACTUALIZADO
     public void registrarJugador(RegistroDTO registroDTO) {
-        // Encriptar la contraseña
+        // 1. Verificar si el email ya existe
+        if (jugadorRepository.existsByEmail(registroDTO.getEmail())) {
+            throw new IllegalStateException("El email ya se encuentra registrado.");
+        }
+
+        // 2. Verificar si el username ya está en uso
+        if (jugadorRepository.existsByUsername(registroDTO.getUsername())) {
+            throw new IllegalStateException("El nombre de usuario ya no está disponible.");
+        }
+
+        // 3. Si todo está bien, proceder con el registro
         String encodedPassword = passwordEncoder.encode(registroDTO.getPassword());
 
-        // Crear un nuevo jugador
         Jugador jugador = new Jugador();
         jugador.setUsername(registroDTO.getUsername());
         jugador.setEmail(registroDTO.getEmail());
         jugador.setPassword(encodedPassword);
         jugador.setTipoRol(registroDTO.getTipoRol());
 
-        // Guardar en la base de datos
         jugadorRepository.save(jugador);
     }
 

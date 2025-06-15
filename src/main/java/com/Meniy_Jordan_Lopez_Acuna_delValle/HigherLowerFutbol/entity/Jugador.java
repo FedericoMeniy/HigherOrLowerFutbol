@@ -21,11 +21,13 @@ public class Jugador {
 
     @NotBlank(message = "El nombre del usuario no puede ser nulo ni estar vacío.")
     @Size(min = 2, max = 100, message = "El nombre del usuario debe tener entre 2 y 100 caracteres.")
+    @Column(unique = true)
     private String username;
 
     @NotBlank(message = "El email no puede ser nulo ni estar vacío.")
     @Email(message = "El formato del email no es válido.")
     @Size(min = 5, max = 100, message = "El email debe tener entre 5 y 100 caracteres.")
+    @Column(unique = true)
     private String email;
 
     @NotBlank(message = "La contraseña no puede ser nula ni estar vacía.")

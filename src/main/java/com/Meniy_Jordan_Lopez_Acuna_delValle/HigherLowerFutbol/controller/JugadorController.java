@@ -20,10 +20,17 @@ public class JugadorController {
     @Autowired
     private JugadorService jugadorService;
 
+    // MÉTODO ACTUALIZADO
     @PostMapping("/register")
     public ResponseEntity<String> registrar(@RequestBody RegistroDTO registroDTO){
-        jugadorService.registrarJugador(registroDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Jugador registrado");
+        try {
+            jugadorService.registrarJugador(registroDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Jugador registrado exitosamente.");
+        } catch (IllegalStateException e) {
+            // Si el servicio lanza nuestra excepción, la capturamos
+            // y devolvemos un error 400 (Bad Request) con el mensaje.
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @PostMapping("/login")
