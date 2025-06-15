@@ -19,6 +19,7 @@ public class JuegoService {
     @Autowired private FutbolApiService futbolApiService;
     private final Random random = new Random();
 
+    /*
     public RondaResultado jugarRonda(String eleccionDelUsuario) {
         List<Futbolista> futbolistas = futbolistaRepository.findAll();
         if (futbolistas.size() < 2) {
@@ -71,6 +72,8 @@ public class JuegoService {
         }
         return futbolista;
     }
+    */
+
 }
     /*
  public RondaResultado jugarRonda(String eleccionMayorOMenor) {

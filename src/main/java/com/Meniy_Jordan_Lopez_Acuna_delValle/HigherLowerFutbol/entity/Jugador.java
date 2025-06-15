@@ -45,5 +45,60 @@ public class Jugador {
     @OneToMany
     private List<Torneo> torneos;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getTipoRol() {
+        return tipoRol;
+    }
+
+    public void setTipoRol(String tipoRol) {
+        this.tipoRol = tipoRol;
+    }
+
+    public int getPuntaje() {
+        return puntaje;
+    }
+
+    public void setPuntaje(int puntaje) {
+        this.puntaje = puntaje;
+    }
+
+    public List<Torneo> getTorneos() {
+        return torneos;
+    }
+
+    public void setTorneos(List<Torneo> torneos) {
+        this.torneos = torneos;
+    }
 }
 

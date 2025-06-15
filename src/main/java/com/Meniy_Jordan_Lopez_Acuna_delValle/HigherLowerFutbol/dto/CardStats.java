@@ -10,5 +10,27 @@ public class CardStats {
     private Integer yellow;
     private Integer yellowred;
 
+    public Integer getRed() {
+        return red;
+    }
 
+    public void setRed(Integer red) {
+        this.red = red;
+    }
+
+    public Integer getYellow() {
+        return yellow;
+    }
+
+    public void setYellow(Integer yellow) {
+        this.yellow = yellow;
+    }
+
+    public Integer getYellowred() {
+        return yellowred;
+    }
+
+    public void setYellowred(Integer yellowred) {
+        this.yellowred = yellowred;
+    }
 }

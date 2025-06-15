@@ -22,12 +22,29 @@ public class FutbolController {
         this.syncService = syncService;
     }
 
-    @PostMapping("/sync/liga/{ligaId}/temporada/{temporada}")
-    public ResponseEntity<String> sincronizarLigaCompleta(@PathVariable int ligaId, @PathVariable int temporada) {
-        new Thread(() -> syncService.sincronizarLigaEntera(ligaId, temporada)).start();
-        return ResponseEntity.ok("Sincronización de la liga " + ligaId + " iniciada en segundo plano.");
+    public FutbolApiService getFutbolApiService() {
+        return futbolApiService;
     }
 
+    public void setFutbolApiService(FutbolApiService futbolApiService) {
+        this.futbolApiService = futbolApiService;
+    }
+
+    public FutbolistaDataSyncService getSyncService() {
+        return syncService;
+    }
+
+    public void setSyncService(FutbolistaDataSyncService syncService) {
+        this.syncService = syncService;
+    }
+
+    /*
+        @PostMapping("/sync/liga/{ligaId}/temporada/{temporada}")
+        public ResponseEntity<String> sincronizarLigaCompleta(@PathVariable int ligaId, @PathVariable int temporada) {
+            new Thread(() -> syncService.sincronizarLigaEntera(ligaId, temporada)).start();
+            return ResponseEntity.ok("Sincronización de la liga " + ligaId + " iniciada en segundo plano.");
+        }
+    */
     @GetMapping("/jugador/id/{jugadorId}/temporada/{temporadaId}")
     public ResponseEntity<String>jugadorPorId(@PathVariable int jugadorId, @PathVariable int temporadaId){
         String json = futbolApiService.obtenerJugadorPorId(jugadorId, temporadaId);
@@ -49,6 +66,7 @@ public class FutbolController {
         return ResponseEntity.ok(json);
     }
 
+    /*
     @PostMapping("/sync/equipo/{equipoId}/temporada/{temporada}")
     public ResponseEntity<String> sincronizarEquipo(
             @PathVariable int equipoId,
@@ -62,7 +80,7 @@ public class FutbolController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error durante la sincronización: " + e.getMessage());
         }
     }
-
+        */
     /*
     @GetMapping("/jugador/{jugadorId}/temporada/{temporadaId}")
     public ResponseEntity<String>obtenerJugadorEstadi(@PathVariable int jugadorId, @PathVariable int temporadaId){

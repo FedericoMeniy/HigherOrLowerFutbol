@@ -1,21 +1,22 @@
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service;
 
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.*;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.Estadistica;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.Futbolista;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.repository.FutbolistaRepository;
-import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.EquipoApiResponseDTO;
-import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.EquipoDTO;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service.FutbolApiException;
-import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.EquipoApiResponseDTO;
-import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.EquipoDTO;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,25 +57,6 @@ public class FutbolApiService {
         );
 
         return response.getBody();
-    }
-
-    public List<EquipoDTO.EquipoInfo> obtenerEquiposPorLiga(int ligaId, int temporada) {
-        String url = API_URL + "/teams?league=" + ligaId + "&season=" + temporada;
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("x-apisports-key", API_KEY);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<EquipoApiResponseDTO> response = restTemplate.exchange(
-                url, HttpMethod.GET, entity, EquipoApiResponseDTO.class
-        );
-
-        EquipoApiResponseDTO apiResponse = response.getBody();
-        if (apiResponse != null && apiResponse.getResponse() != null) {
-            return apiResponse.getResponse().stream()
-                    .map(EquipoDTO::getInfo)
-                    .collect(Collectors.toList());
-        }
-        return List.of();
     }
 
 
@@ -144,4 +126,61 @@ public class FutbolApiService {
    }
 
 
+    public List<PlayerStatsData> loadPlayersAndStatsFromApiFootball(int leagueId, int season) throws FutbolApiException {
+        List<PlayerStatsData> allPlayersData = new ArrayList<>();
+        int currentPage = 1;
+        int totalPages = 1; // Inicializado para asegurar que el bucle se ejecute al menos una vez
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("x-apisports-key", API_KEY);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        do {
+            String url = API_URL + "/players?league=" + leagueId + "&season=" + season + "&page=" + currentPage;
+            System.out.println("Consultando API Football: " + url);
+
+            try {
+                // Aquí usamos tu JugadoresApiResponse para mapear la respuesta
+                ResponseEntity<JugadoresApiResponse> responseEntity = restTemplate.exchange(
+                        url,
+                        HttpMethod.GET,
+                        entity,
+                        JugadoresApiResponse.class
+                );
+
+                JugadoresApiResponse apiResponse = responseEntity.getBody();
+
+                // Verificaciones de seguridad para la respuesta
+                if (apiResponse != null && apiResponse.getResponse() != null && !apiResponse.getResponse().isEmpty()) {
+                    allPlayersData.addAll(apiResponse.getResponse()); // Agrega los PlayerStatsData de la página actual
+
+                    // Actualiza el total de páginas desde la información de paginación
+                    if (apiResponse.getPaging() != null && apiResponse.getPaging().getTotal() != null) {
+                        totalPages = apiResponse.getPaging().getTotal();
+                    } else {
+                        // Caso de respaldo si la paginación no está presente (poco probable con esta API)
+                        System.out.println("Advertencia: Información de paginación no disponible. Asumiendo que es la última página.");
+                        totalPages = currentPage; // Fuerza la salida del bucle
+                    }
+                } else {
+                    System.out.println("Respuesta vacía para la página " + currentPage + ". Terminando paginación.");
+                    totalPages = currentPage; // Fuerza la salida del bucle si no hay datos
+                }
+
+            } catch (Exception e) {
+                System.err.println("Error al cargar jugadores de la API para la página " + currentPage + ": " + e.getMessage());
+                throw new FutbolApiException("Error al comunicarse con la API Football para cargar jugadores");
+            }
+
+            currentPage++; // Avanza a la siguiente página
+
+        } while (currentPage <= totalPages); // Continúa mientras haya páginas por procesar
+
+        return allPlayersData; // Devuelve la lista completa de PlayerStatsData
+    }
+
+
 }
+
+
+

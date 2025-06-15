@@ -20,14 +20,46 @@ public class Futbolista {
     private Integer idApi;
     private String nombre;
     private String imagenURL;
-    private Integer goles;
-    private Integer asistencias;
-    private Integer tarjetasRojas;
-    private Integer tarjetasAmarillas;
-    private Integer partidosJugados;
+    @OneToOne(mappedBy = "futbolista", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Estadistica estadistica;
 
-//2. Atributo idApi (ID del jugador en la API externa):
-//private Integer idApi;: Sí, esto es ABSOLUTAMENTE CRUCIAL y está muy bien.
+    public Long getId() {
+        return id;
+    }
 
-    //A casa fede bot
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Integer getIdApi() {
+        return idApi;
+    }
+
+    public void setIdApi(Integer idApi) {
+        this.idApi = idApi;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getImagenURL() {
+        return imagenURL;
+    }
+
+    public void setImagenURL(String imagenURL) {
+        this.imagenURL = imagenURL;
+    }
+
+    public Estadistica getEstadistica() {
+        return estadistica;
+    }
+
+    public void setEstadistica(Estadistica estadistica) {
+        this.estadistica = estadistica;
+    }
 }
