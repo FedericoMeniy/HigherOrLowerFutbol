@@ -1,29 +1,90 @@
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service;
 
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.EquipoDTO;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.FutbolistaDTO;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.Equipo;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.Futbolista;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.repository.EquipoRepository;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.repository.FutbolistaRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class FutbolistaDataSyncService {
 
-    @Autowired
-    private FutbolApiService futbolApiService;
+    @Autowired private FutbolApiService futbolApiService;
+    @Autowired private FutbolistaRepository futbolistaRepository;
+    @Autowired private EquipoRepository equipoRepository;
 
-    @Autowired
-    private FutbolistaRepository futbolistaRepository;
+    public void sincronizarLigaEntera(int ligaId, int temporada) {
+        System.out.println("== INICIANDO SINCRONIZACIÓN COMPLETA PARA LIGA " + ligaId + " ==");
+        List<EquipoDTO.EquipoInfo> equiposDesdeApi = futbolApiService.obtenerEquiposPorLiga(ligaId, temporada);
+
+        for (EquipoDTO.EquipoInfo equipoInfo : equiposDesdeApi) {
+            Equipo equipo = equipoRepository.findByIdApi(equipoInfo.getId()).orElse(new Equipo());
+            equipo.setIdApi(equipoInfo.getId());
+            equipo.setNombre(equipoInfo.getName());
+            equipoRepository.save(equipo);
+
+            try {
+                sincronizarJugadoresDeEquipo(equipo.getIdApi(), temporada);
+            } catch (Exception e) {
+                System.err.println("Error al sincronizar jugadores del equipo " + equipo.getNombre() + ": " + e.getMessage());
+            }
+        }
+        System.out.println("== SINCRONIZACIÓN COMPLETA DE LIGA FINALIZADA ==");
+    }
+
+    public void sincronizarJugadoresDeEquipo(int equipoId, int temporada) throws Exception {
+        String jugadoresJsonString = futbolApiService.obtenerJugadorPorLiga(equipoId);
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(jugadoresJsonString);
+
+        // --- INICIO DE LA MODIFICACIÓN ---
+        JsonNode responseArray = rootNode.path("response");
+
+        // Verificación de seguridad: nos aseguramos de que la respuesta no esté vacía
+        if (responseArray.isEmpty() || !responseArray.has(0)) {
+            System.out.println("ADVERTENCIA: No se recibieron jugadores para el equipo ID: " + equipoId + ". Posiblemente no hay datos en la API o se alcanzó el límite de peticiones. Saltando equipo.");
+            return; // Salimos del método para este equipo y continuamos con el siguiente.
+        }
+
+        // Si la verificación pasa, continuamos como antes
+        JsonNode responseNode = responseArray.get(0).path("players");
+        // --- FIN DE LA MODIFICACIÓN ---
+
+
+        List<FutbolistaDTO> jugadoresSquad = objectMapper.convertValue(responseNode, new TypeReference<>() {});
+
+        for (FutbolistaDTO jugadorInfo : jugadoresSquad) {
+            if (jugadorInfo.getIdApi() == null) continue;
+
+            if (!futbolistaRepository.findByIdApi(jugadorInfo.getIdApi()).isPresent()) {
+                Futbolista nuevoFutbolista = new Futbolista();
+                nuevoFutbolista.setIdApi(jugadorInfo.getIdApi());
+                nuevoFutbolista.setNombre(jugadorInfo.getNombre());
+                nuevoFutbolista.setImagenURL(jugadorInfo.getImagen());
+                nuevoFutbolista.setGoles(0);
+                nuevoFutbolista.setAsistencias(0);
+                nuevoFutbolista.setTarjetasAmarillas(0);
+                nuevoFutbolista.setTarjetasRojas(0);
+                nuevoFutbolista.setPartidosJugados(0);
+                futbolistaRepository.save(nuevoFutbolista);
+                System.out.println("Futbolista BÁSICO '" + nuevoFutbolista.getNombre() + "' guardado.");
+            }
+        }
+        // No es necesario imprimir el "ya existe" para no llenar la consola
+    }
+}
+
 
     /// creo que llama los jugadores de un equipo en particular con sus datos
     /// ADVERTENCIA: puede que use muchas request porque utiliza UN llamado a la api por jugador, que es donde estan los datos que buscamos
-
+    /*
     public void sincronizarJugadoresDeEquipo(int equipoId, int temporada) throws Exception {
         System.out.println("Iniciando sincronización para el equipo: " + equipoId);
 
@@ -75,4 +136,6 @@ public class FutbolistaDataSyncService {
         }
         System.out.println("Sincronización para el equipo " + equipoId + " completada.");
     }
-}
+
+    */
+

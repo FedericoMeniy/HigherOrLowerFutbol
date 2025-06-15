@@ -22,17 +22,26 @@ public class FutbolController {
         this.syncService = syncService;
     }
 
+    @PostMapping("/sync/liga/{ligaId}/temporada/{temporada}")
+    public ResponseEntity<String> sincronizarLigaCompleta(@PathVariable int ligaId, @PathVariable int temporada) {
+        new Thread(() -> syncService.sincronizarLigaEntera(ligaId, temporada)).start();
+        return ResponseEntity.ok("Sincronización de la liga " + ligaId + " iniciada en segundo plano.");
+    }
+
     @GetMapping("/jugador/id/{jugadorId}/temporada/{temporadaId}")
     public ResponseEntity<String>jugadorPorId(@PathVariable int jugadorId, @PathVariable int temporadaId){
         String json = futbolApiService.obtenerJugadorPorId(jugadorId, temporadaId);
         return ResponseEntity.ok(json);
     }
 
+
+    /*
     @GetMapping("/{ligaId}/{temporada}")
     public ResponseEntity<String> traerEquipos(@PathVariable int ligaId, @PathVariable int temporada) {
         String json = futbolApiService.obtenerEquiposPorLiga(ligaId, temporada);
         return ResponseEntity.ok(json);
     }
+     */
 
     @GetMapping("/{equipoId}")
     public ResponseEntity<String> traerJugadores(@PathVariable int equipoId){

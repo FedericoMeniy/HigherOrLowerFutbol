@@ -3,6 +3,8 @@ package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.*;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.Futbolista;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.repository.FutbolistaRepository;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.EquipoApiResponseDTO;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.EquipoDTO;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -12,7 +14,14 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service.FutbolApiException;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.EquipoApiResponseDTO;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.EquipoDTO;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class FutbolApiService {
@@ -49,22 +58,23 @@ public class FutbolApiService {
         return response.getBody();
     }
 
-    public String obtenerEquiposPorLiga(int ligaId, int temporada) {
+    public List<EquipoDTO.EquipoInfo> obtenerEquiposPorLiga(int ligaId, int temporada) {
         String url = API_URL + "/teams?league=" + ligaId + "&season=" + temporada;
-
         HttpHeaders headers = new HttpHeaders();
         headers.set("x-apisports-key", API_KEY);
-
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        ResponseEntity<String> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                entity,
-                String.class
+        ResponseEntity<EquipoApiResponseDTO> response = restTemplate.exchange(
+                url, HttpMethod.GET, entity, EquipoApiResponseDTO.class
         );
 
-        return response.getBody();
+        EquipoApiResponseDTO apiResponse = response.getBody();
+        if (apiResponse != null && apiResponse.getResponse() != null) {
+            return apiResponse.getResponse().stream()
+                    .map(EquipoDTO::getInfo)
+                    .collect(Collectors.toList());
+        }
+        return List.of();
     }
 
 

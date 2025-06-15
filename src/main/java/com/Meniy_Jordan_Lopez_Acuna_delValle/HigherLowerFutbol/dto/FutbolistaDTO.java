@@ -14,7 +14,9 @@ public class FutbolistaDTO {
     @JsonProperty("name")       /// mas o menos lo mismo
     private String nombre;
 
+    @JsonProperty("photo")
     private String imagen;
+
     private int goles;
     private int asistencias;
     private int tarjetasRojas;
