@@ -42,7 +42,8 @@ public class SecurityConfig {
                                 "/auth/register",
                                 "/auth/login",
                                 "/auth/logout",
-                                "/apii/futbol/**" // <-- AÑADE ESTA LÍNEA
+                                "/apii/futbol/**",
+                                "/api/juego/**" // <-- AÑADE ESTA LÍNEA
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

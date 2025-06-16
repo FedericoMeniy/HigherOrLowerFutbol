@@ -4,24 +4,23 @@ import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service.Futbolist
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.CommandLineRunner; // Asegúrate de importar CommandLineRunner
+
 @SpringBootApplication
-public class HigherLowerFutbolApplication {
-	// Inyecta el servicio de sincronización. Spring se encarga de crear la instancia y sus dependencias.
+// Añade "implements CommandLineRunner" aquí
+public class HigherLowerFutbolApplication implements CommandLineRunner {
+
 	@Autowired
 	private FutbolistaDataSyncService futbolistaDataSyncService;
 
 	public static void main(String[] args) {
-
 		CreacionBDD.crearBaseDatos();
-
 		SpringApplication.run(HigherLowerFutbolApplication.class, args);
-
 	}
 
-
+	// Añade la anotación @Override aquí
+	@Override
 	public void run(String... args) throws Exception {
-
 		int leagueId = 128; // Liga Profesional Argentina
 		int season = 2023;
 

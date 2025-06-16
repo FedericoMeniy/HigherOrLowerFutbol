@@ -1,5 +1,6 @@
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -17,6 +18,7 @@ public class Estadistica {
     private int tarjetasAmarillas;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "futbolista_id", referencedColumnName = "id")
+    @JsonIgnore
     private Futbolista futbolista;
 
     public Long getId() {
