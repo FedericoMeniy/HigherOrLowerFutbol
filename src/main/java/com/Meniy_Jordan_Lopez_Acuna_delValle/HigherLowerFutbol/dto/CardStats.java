@@ -1,36 +1,18 @@
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-// Renombrar la clase a CardStats
 public class CardStats {
-    //Integer para manejar atributos null
+    @JsonProperty("red")
     private Integer red;
+
+    @JsonProperty("yellow")
     private Integer yellow;
+
+    @JsonProperty("yellowred")
     private Integer yellowred;
 
-    public Integer getRed() {
-        return red;
-    }
-
-    public void setRed(Integer red) {
-        this.red = red;
-    }
-
-    public Integer getYellow() {
-        return yellow;
-    }
-
-    public void setYellow(Integer yellow) {
-        this.yellow = yellow;
-    }
-
-    public Integer getYellowred() {
-        return yellowred;
-    }
-
-    public void setYellowred(Integer yellowred) {
-        this.yellowred = yellowred;
-    }
+    // Getters y Setters
 }

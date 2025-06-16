@@ -1,26 +1,15 @@
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-//Renombrar la clase a GoalStats
 public class GoalStats {
+    @JsonProperty("total")
     private Integer total;
+
+    @JsonProperty("assists")
     private Integer assists;
 
-    public Integer getTotal() {
-        return total;
-    }
 
-    public void setTotal(Integer total) {
-        this.total = total;
-    }
-
-    public Integer getAssists() {
-        return assists;
-    }
-
-    public void setAssists(Integer assists) {
-        this.assists = assists;
-    }
 }

@@ -22,7 +22,7 @@ public class HigherLowerFutbolApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		int leagueId = 128; // Liga Profesional Argentina
-		int season = 2023;
+		int season = 2021;
 
 		try {
 			System.out.println("Iniciando la sincronización de futbolistas...");
