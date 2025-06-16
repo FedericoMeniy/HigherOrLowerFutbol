@@ -12,25 +12,18 @@ public class HigherLowerFutbolApplication {
 	private FutbolistaDataSyncService futbolistaDataSyncService;
 
 	public static void main(String[] args) {
-		// La llamada a CreacionBDD.crearBaseDatos() se ejecuta ANTES de que Spring inicie.
-		// Si CreacionBDD.crearBaseDatos() solo crea el esquema de la DB (CREATE DATABASE), puedes dejarlo.
-		// Si también crea tablas, índices, etc. (CREATE TABLE), es mejor dejar que Hibernate lo haga
-		// con 'spring.jpa.hibernate.ddl-auto=update' y QUITAR esta línea para evitar duplicidades/conflictos.
+
 		CreacionBDD.crearBaseDatos();
 
 		SpringApplication.run(HigherLowerFutbolApplication.class, args);
-		// ¡Elimina la línea FutbolistaDataSyncService.initialLoadPlayersAndStats(128, 2023); de aquí!
-		// No debes llamar a métodos de servicio directamente así desde el main.
+
 	}
 
 
 	public void run(String... args) throws Exception {
-		// Este método se ejecuta automáticamente cuando la aplicación Spring Boot ha arrancado completamente.
-		// Aquí, 'futbolistaDataSyncService' ya está inyectado y listo para ser usado.
 
-		// Define el ID de la liga y la temporada
-		int leagueId = 128; // Liga Profesional Argentina (ejemplo)
-		int season = 2023; // Año 2023 (ejemplo)
+		int leagueId = 128; // Liga Profesional Argentina
+		int season = 2023;
 
 		try {
 			System.out.println("Iniciando la sincronización de futbolistas...");
