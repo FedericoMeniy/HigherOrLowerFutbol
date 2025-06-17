@@ -63,11 +63,11 @@ public class FutbolistaDataSyncService {
                     futbolista.setEstadistica(estadistica);
                 }
 
-                // Mapear los datos básicos del DTO de la API a tu entidad Futbolista
+
                 futbolista.setNombre(playerStatsData.getPlayer().getName());
                 futbolista.setImagenURL(playerStatsData.getPlayer().getPhoto());
 
-                // Mapear las estadísticas (solo goles y tarjetas) al objeto Estadistica
+
                 if (playerStatsData.getStatistics() != null && !playerStatsData.getStatistics().isEmpty()) {
                     Statistic apiStats = playerStatsData.getStatistics().get(0);
 
@@ -77,9 +77,9 @@ public class FutbolistaDataSyncService {
                     estadistica.setTarjetasAmarillas(Optional.ofNullable(apiStats.getCards()).map(CardStats::getYellow).orElse(0));
                     estadistica.setTarjetasRojas(Optional.ofNullable(apiStats.getCards()).map(CardStats::getRed).orElse(0));
 
-                    // Ya no se mapea 'partidosJugados' aquí
+
                 } else {
-                    // Si no hay estadísticas de la API, inicializar a 0
+
                     estadistica.setGoles(0);
                     estadistica.setAsistencias(0);
                     estadistica.setTarjetasAmarillas(0);
@@ -87,7 +87,7 @@ public class FutbolistaDataSyncService {
                     System.out.println("Advertencia: No se encontraron estadísticas detalladas para el jugador " + futbolista.getNombre() + " (ID: " + idApi + "). Se inicializan en 0.");
                 }
 
-                // Guardar (o actualizar) la entidad Futbolista.
+
                 try {
                     futbolistaRepository.save(futbolista);
                     processedCount++;

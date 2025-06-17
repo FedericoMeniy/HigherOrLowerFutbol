@@ -129,7 +129,7 @@ public class FutbolApiService {
     public List<PlayerStatsData> loadPlayersAndStatsFromApiFootball(int leagueId, int season) throws FutbolApiException {
         List<PlayerStatsData> allPlayersData = new ArrayList<>();
         int currentPage = 1;
-        int totalPages = 1; // Inicializado para asegurar que el bucle se ejecute al menos una vez
+        int totalPages = 1;
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("x-apisports-key", API_KEY);
@@ -140,7 +140,7 @@ public class FutbolApiService {
             System.out.println("Consultando API Football: " + url);
 
             try {
-                // Aquí usamos tu JugadoresApiResponse para mapear la respuesta
+
                 ResponseEntity<JugadoresApiResponse> responseEntity = restTemplate.exchange(
                         url,
                         HttpMethod.GET,
@@ -150,21 +150,21 @@ public class FutbolApiService {
 
                 JugadoresApiResponse apiResponse = responseEntity.getBody();
 
-                // Verificaciones de seguridad para la respuesta
-                if (apiResponse != null && apiResponse.getResponse() != null && !apiResponse.getResponse().isEmpty()) {
-                    allPlayersData.addAll(apiResponse.getResponse()); // Agrega los PlayerStatsData de la página actual
 
-                    // Actualiza el total de páginas desde la información de paginación
+                if (apiResponse != null && apiResponse.getResponse() != null && !apiResponse.getResponse().isEmpty()) {
+                    allPlayersData.addAll(apiResponse.getResponse());
+
+
                     if (apiResponse.getPaging() != null && apiResponse.getPaging().getTotal() != null) {
                         totalPages = apiResponse.getPaging().getTotal();
                     } else {
-                        // Caso de respaldo si la paginación no está presente (poco probable con esta API)
+
                         System.out.println("Advertencia: Información de paginación no disponible. Asumiendo que es la última página.");
-                        totalPages = currentPage; // Fuerza la salida del bucle
+                        totalPages = currentPage;
                     }
                 } else {
                     System.out.println("Respuesta vacía para la página " + currentPage + ". Terminando paginación.");
-                    totalPages = currentPage; // Fuerza la salida del bucle si no hay datos
+                    totalPages = currentPage;
                 }
 
             } catch (Exception e) {
@@ -172,11 +172,11 @@ public class FutbolApiService {
                 throw new FutbolApiException("Error al comunicarse con la API Football para cargar jugadores");
             }
 
-            currentPage++; // Avanza a la siguiente página
+            currentPage++;
 
-        } while (currentPage <= totalPages); // Continúa mientras haya páginas por procesar
+        } while (currentPage <= totalPages);
 
-        return allPlayersData; // Devuelve la lista completa de PlayerStatsData
+        return allPlayersData;
     }
 
 

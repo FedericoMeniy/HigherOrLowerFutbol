@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.CommandLineRunner; // Asegúrate de importar CommandLineRunner
 
 @SpringBootApplication
-// Añade "implements CommandLineRunner" aquí
+
 public class HigherLowerFutbolApplication implements CommandLineRunner {
 
 	@Autowired
@@ -18,10 +18,10 @@ public class HigherLowerFutbolApplication implements CommandLineRunner {
 		SpringApplication.run(HigherLowerFutbolApplication.class, args);
 	}
 
-	// Añade la anotación @Override aquí
+
 	@Override
 	public void run(String... args) throws Exception {
-		int leagueId = 128; // Liga Profesional Argentina
+		int leagueId = 39; // Liga inglesa
 		int season = 2021;
 
 		try {
