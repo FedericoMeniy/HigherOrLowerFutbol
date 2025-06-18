@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -38,4 +39,12 @@ public class Torneo {
 
     @ManyToOne
     private Jugador creador;
+
+    private LocalDateTime fechaCreacion;
+
+    private LocalDateTime fechaFin;
+
+    public void setCreador(Jugador creador) {
+        this.creador = creador;
+    }
 }

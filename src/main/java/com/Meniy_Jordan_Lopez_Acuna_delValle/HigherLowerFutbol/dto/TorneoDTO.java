@@ -1,5 +1,6 @@
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto;
 
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.Jugador;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -16,14 +17,8 @@ import java.util.List;
 @AllArgsConstructor
 public class TorneoDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @NotBlank(message = "El nombre del torneo no puede ser nulo")
-    @Size(min = 2, max = 100, message = "El nombre del torneo debe tener entre 2 y 100 caracteres")
-    private String nombre;
-
-    private List<Long> jugadorIds; // ??? RELACION
-
+    private Long idJugador;
+    private String nombreTorneo;
+    private String password;
+    private String tiempoLimite;
 }
