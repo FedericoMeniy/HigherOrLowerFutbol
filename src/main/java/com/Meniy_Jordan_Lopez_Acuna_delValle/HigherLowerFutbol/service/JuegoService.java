@@ -90,9 +90,6 @@ public class JuegoService {
                 return estadistica.getTarjetasRojas();
             case MAS_TARJETAS_AMARILLAS:
                 return estadistica.getTarjetasAmarillas();
-            // La pregunta MAS_PARTIDOS_JUGADOS existe en el enum pero no hay un campo en la entidad Estadistica.
-            // Se puede añadir el campo o manejar este caso.
-            case MAS_PARTIDOS_JUGADOS:
             default:
                 return 0;
         }

@@ -8,8 +8,7 @@ public enum PreguntaHigherLower {
     MAS_GOLES("¿Tiene más goles?"),
     MAS_ASISTENCIAS("¿Tiene más asistencias?"),
     MAS_TARJETAS_ROJAS("¿Tiene más tarjetas rojas?"),
-    MAS_TARJETAS_AMARILLAS("¿Tiene más tarjetas amarillas?"),
-    MAS_PARTIDOS_JUGADOS("¿Tiene más partidos jugados?");
+    MAS_TARJETAS_AMARILLAS("¿Tiene más tarjetas amarillas?");
 
     private final String textoPregunta;
 
