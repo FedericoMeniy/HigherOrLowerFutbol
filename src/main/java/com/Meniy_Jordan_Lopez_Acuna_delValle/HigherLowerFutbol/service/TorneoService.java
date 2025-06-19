@@ -21,13 +21,15 @@ public class TorneoService {
     private JugadorRepository jugadorRepository;
 
 
-    public Torneo crearTorneoPrivado(TorneoDTO dto){
+    public Torneo crearTorneoPrivado(TorneoDTO dto, String userNameCreador){
 
-        Jugador creador = jugadorRepository.findById(dto.getIdJugador()).orElseThrow(()-> new RuntimeException("Usuario creador no encontrado"));
+        Jugador creador = jugadorRepository.findByUsername(userNameCreador).orElseThrow(()-> new RuntimeException("Usuario creador no encontrado"));
 
         TorneoPrivado nuevoTorneo = new TorneoPrivado();
         nuevoTorneo.setNombre(dto.getNombreTorneo());
         nuevoTorneo.setPassword(dto.getPassword());
+        //Inserto el dueño del torneo
+        nuevoTorneo.setCreador(creador);
 
 
         //El creador es el primer jugador de su torneo

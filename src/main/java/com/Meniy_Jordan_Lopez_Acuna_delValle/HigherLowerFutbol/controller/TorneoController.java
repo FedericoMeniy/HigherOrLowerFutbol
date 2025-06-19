@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
+
 @RestController
 @RequestMapping("/torneo")
 
@@ -23,10 +25,10 @@ public class TorneoController {
      * Recibe los datos del torneo en el cuerpo de la petición.
      */
     @PostMapping("/crear-amigos")
-    public ResponseEntity<?> crearTorneoAmigos(@RequestBody TorneoDTO torneoDTO) {
+    public ResponseEntity<?> crearTorneoAmigos(@RequestBody TorneoDTO torneoDTO, Principal principal) {
 
         try {
-            Torneo nuevoTorneo = torneoService.crearTorneoPrivado(torneoDTO);
+            Torneo nuevoTorneo = torneoService.crearTorneoPrivado(torneoDTO,principal.getName());
 
             return ResponseEntity.ok(nuevoTorneo);
 
