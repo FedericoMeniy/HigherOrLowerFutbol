@@ -2,6 +2,7 @@ package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service;
 
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.Exceptions.TorneoException;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.TorneoDTO;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.UnirseTorneoDTO;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.Jugador;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.Torneo;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.TorneoPrivado;
@@ -27,10 +28,10 @@ public class TorneoService {
         TorneoPrivado nuevoTorneo = new TorneoPrivado();
         nuevoTorneo.setNombre(dto.getNombreTorneo());
         nuevoTorneo.setPassword(dto.getPassword());
-        nuevoTorneo.setCreador(creador);
+
 
         //El creador es el primer jugador de su torneo
-        nuevoTorneo.setCreador(creador);
+        nuevoTorneo.agregarParticipante(creador);
 
         //Aca establezco el tiempo limite del torneo
 
@@ -69,6 +70,28 @@ public class TorneoService {
 
         }
         return fechaInicio;
+    }
+
+    private Torneo unirseTorneo(Long idTorneo, UnirseTorneoDTO dto) throws RuntimeException{
+
+        Torneo torneo = torneoRepository.findById(idTorneo).orElseThrow(()-> new RuntimeException("El torneo con id:" + idTorneo + "no fue encontrado"));
+        Jugador jugador = jugadorRepository.findById(dto.getIdJugador()).orElseThrow(()-> new RuntimeException("El jugador con id:"+ dto.getIdJugador()+ "No existe"));
+
+        TorneoPrivado torneoPrivado = (TorneoPrivado) torneo;
+        if(!torneoPrivado.getPassword().equals(dto.getPassword())){
+
+            throw new RuntimeException("Contraseña incorrecta");
+        }
+
+        if (torneo.getJugadores().contains(jugador)) {
+            throw new RuntimeException("Este jugador ya se encuentra en el torneo.");
+        }
+
+
+        torneoPrivado.agregarParticipante(jugador);
+
+        // Guardamos el torneo con la lista de jugadores actualizada.
+        return torneoRepository.save(torneoPrivado);
     }
 
 }

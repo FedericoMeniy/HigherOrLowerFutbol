@@ -47,4 +47,9 @@ public class Torneo {
     public void setCreador(Jugador creador) {
         this.creador = creador;
     }
+
+    public void agregarParticipante(Jugador jugador){
+
+        this.jugadores.add(jugador);
+    }
 }
