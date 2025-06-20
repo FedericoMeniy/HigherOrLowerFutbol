@@ -86,7 +86,7 @@ public class TorneoService {
         return fechaFin;
     }
 
-    private Torneo unirseTorneo(Long idTorneo, UnirseTorneoDTO dto) throws RuntimeException{
+    public Torneo unirseTorneo(Long idTorneo, UnirseTorneoDTO dto) throws RuntimeException{
 
         Torneo torneo = torneoRepository.findById(idTorneo).orElseThrow(()-> new RuntimeException("El torneo con id:" + idTorneo + "no fue encontrado"));
         Jugador jugador = jugadorRepository.findById(dto.getIdJugador()).orElseThrow(()-> new RuntimeException("El jugador con id:"+ dto.getIdJugador()+ "No existe"));

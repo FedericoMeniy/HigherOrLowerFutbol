@@ -1,6 +1,7 @@
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.controller;
 
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.TorneoDTO;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.UnirseTorneoDTO;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.DetalleTorneo;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.Torneo;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service.TorneoService;
@@ -44,6 +45,18 @@ public class TorneoController {
             return ResponseEntity.ok(leaderboard);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
+        }
+    }
+    @PostMapping("/{torneoId}/unirse")
+    public ResponseEntity<?> unirseATorneo(@PathVariable Long torneoId, @RequestBody UnirseTorneoDTO dto) {
+        try {
+            // Llamamos al método del servicio que ahora sí es público.
+            Torneo torneoActualizado = torneoService.unirseTorneo(torneoId, dto);
+            return ResponseEntity.ok(torneoActualizado);
+        } catch (RuntimeException e) {
+            // Atrapa errores como "Torneo no encontrado", "Contraseña incorrecta", etc.
+            // y los devuelve como una respuesta clara al frontend.
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }
