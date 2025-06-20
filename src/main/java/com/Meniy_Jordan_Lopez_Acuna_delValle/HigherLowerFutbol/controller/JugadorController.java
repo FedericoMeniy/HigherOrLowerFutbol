@@ -24,8 +24,15 @@ public class JugadorController {
     private final JugadorService jugadorService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> registrar(@RequestBody RegistroDTO request) {
-        return ResponseEntity.ok(jugadorService.registrarJugador(request));
+    public ResponseEntity<?> registrar(@RequestBody RegistroDTO request) {
+        try{
+            AuthenticationResponse response = jugadorService.registrarJugador(request);
+            return ResponseEntity.ok(response);
+        }catch(IllegalStateException e){
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 
     @PostMapping("/login")

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.security.Principal;
 
 @RestController
-@RequestMapping("/api/perfil")
+@RequestMapping("/perfil")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class PerfilController {

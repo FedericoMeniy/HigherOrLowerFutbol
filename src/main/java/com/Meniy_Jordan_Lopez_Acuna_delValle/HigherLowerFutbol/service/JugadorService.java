@@ -33,7 +33,7 @@ public class JugadorService {
             throw new IllegalStateException("El email ya se encuentra registrado.");
         }
         if (jugadorRepository.existsByUsername(request.getUsername())) { //
-            throw new IllegalStateException("El nombre de usuario ya no está disponible.");
+            throw new IllegalStateException("El nombre de usuario ya existe.");
         }
 
         var jugador = new Jugador();
@@ -88,7 +88,7 @@ public class JugadorService {
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con el email: " + email));
 
         return PerfilDTO.builder()
-                .username(jugador.getUsername())
+                .username(jugador.getNombreUsuario())
                 .email(jugador.getEmail())
                 .puntosTotales(jugador.getPuntaje())
                 .build();

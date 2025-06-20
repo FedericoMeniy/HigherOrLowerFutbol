@@ -55,6 +55,10 @@ public class Jugador implements UserDetails {
         return email;
     }
 
+    public String getNombreUsuario(){
+        return this.username;
+    }
+
     @Override
     public String getPassword() {
         return password;

@@ -43,7 +43,7 @@ public class SecurityConfig {
                         // Endpoints públicos que no requieren autenticación
                         .requestMatchers("/auth/**", "/api/juego/ronda", "/apii/futbol/**").permitAll()
                         // Endpoints que requieren que el usuario esté autenticado
-                        .requestMatchers("/api/juego/guardar-puntaje", "/api/perfil/**").authenticated()
+                        .requestMatchers("/api/juego/guardar-puntaje", "/perfil/**").authenticated()
                         // Cualquier otra petición no definida anteriormente requiere autenticación
                         .anyRequest().authenticated()
                 )
