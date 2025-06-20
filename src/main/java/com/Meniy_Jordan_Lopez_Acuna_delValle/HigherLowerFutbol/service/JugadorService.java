@@ -1,62 +1,69 @@
+// Archivo: src/main/java/com/Meniy_Jordan_Lopez_Acuna_delValle/HigherLowerFutbol/service/JugadorService.java
+
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service;
 
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.AuthenticationResponse;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.LoginDTO;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.RegistroDTO;
-import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.RespuestaLoginDTO;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.Jugador;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.repository.JugadorRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
+@RequiredArgsConstructor
 public class JugadorService {
-    @Autowired
-    private JugadorRepository jugadorRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final JugadorRepository jugadorRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
 
-    // MÉTODO ACTUALIZADO
-    public void registrarJugador(RegistroDTO registroDTO) {
-        // 1. Verificar si el email ya existe
-        if (jugadorRepository.existsByEmail(registroDTO.getEmail())) {
+    public AuthenticationResponse registrarJugador(RegistroDTO request) {
+        if (jugadorRepository.existsByEmail(request.getEmail())) {
             throw new IllegalStateException("El email ya se encuentra registrado.");
         }
-
-        // 2. Verificar si el username ya está en uso
-        if (jugadorRepository.existsByUsername(registroDTO.getUsername())) {
+        if (jugadorRepository.existsByUsername(request.getUsername())) {
             throw new IllegalStateException("El nombre de usuario ya no está disponible.");
         }
 
-        // 3. Si todo está bien, proceder con el registro
-        String encodedPassword = passwordEncoder.encode(registroDTO.getPassword());
+        var jugador = new Jugador();
+        jugador.setUsername(request.getUsername());
+        jugador.setEmail(request.getEmail());
+        jugador.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        Jugador jugador = new Jugador();
-        jugador.setUsername(registroDTO.getUsername());
-        jugador.setEmail(registroDTO.getEmail());
-        jugador.setPassword(encodedPassword);
-        jugador.setTipoRol(registroDTO.getTipoRol());
+        // Asigna un rol por defecto. Puedes cambiar esto si lo manejas desde el DTO.
+        jugador.setTipoRol("USER");
 
         jugadorRepository.save(jugador);
+
+        var jwtToken = jwtService.generateToken(jugador);
+        return AuthenticationResponse.builder().token(jwtToken).build();
     }
 
-    public RespuestaLoginDTO autenticarJugador(String email, String password) {
-        Optional<Jugador> jugadorOptional = jugadorRepository.findByEmail(email);
+    public AuthenticationResponse autenticarJugador(LoginDTO request) {
+        Jugador jugador = jugadorRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new BadCredentialsException("El email no se encuentra registrado."));
 
-        if(jugadorOptional.isEmpty()){
-            return new RespuestaLoginDTO(false, "El email ingresado no esta registrado.");
+        if (!passwordEncoder.matches(request.getPassword(), jugador.getPassword())) {
+            // Lanza excepción si la contraseña no coincide
+            throw new BadCredentialsException("La contraseña es incorrecta.");
         }
 
-        Jugador jugador = jugadorOptional.get();
+        // El authenticationManager se encarga de verificar las credenciales usando
+        // el UserDetailsService y PasswordEncoder que configuramos.
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
 
-        if(!passwordEncoder.matches(password, jugador.getPassword())){
-            return new RespuestaLoginDTO(false, "La contraseña es incorrecta.");
-        }
-
-        return new RespuestaLoginDTO(true, "Login exitoso.");
+        var jwtToken = jwtService.generateToken(jugador);
+        return AuthenticationResponse.builder().token(jwtToken).build();
     }
 }
-

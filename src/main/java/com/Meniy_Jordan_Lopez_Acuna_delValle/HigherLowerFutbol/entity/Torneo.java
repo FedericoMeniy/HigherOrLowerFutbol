@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -34,7 +35,7 @@ public class Torneo {
             joinColumns = @JoinColumn(name = "torneo_id"),
             inverseJoinColumns = @JoinColumn(name = "jugador_id")     /// Probando cosas
     )
-    private List<Jugador> jugadores;
+    private List<Jugador> jugadores = new ArrayList<>();
 
 
     @ManyToOne
@@ -49,7 +50,6 @@ public class Torneo {
     }
 
     public void agregarParticipante(Jugador jugador){
-
         this.jugadores.add(jugador);
     }
 }

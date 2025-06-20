@@ -1,58 +1,46 @@
+// Archivo: src/main/java/com/Meniy_Jordan_Lopez_Acuna_delValle/HigherLowerFutbol/controller/JugadorController.java
+
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.controller;
 
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.AuthenticationResponse;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.LoginDTO;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.RegistroDTO;
-import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.RespuestaLoginDTO;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service.JugadorService;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.bind.annotation.*;
+
+import org.springframework.security.core.AuthenticationException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
-
+@RequiredArgsConstructor
+@CrossOrigin(origins = "*") // Permite peticiones desde el frontend
 public class JugadorController {
-    @Autowired
-    private JugadorService jugadorService;
 
-    // MÉTODO ACTUALIZADO
+    private final JugadorService jugadorService;
+
     @PostMapping("/register")
-    public ResponseEntity<String> registrar(@RequestBody RegistroDTO registroDTO){
-        try {
-            jugadorService.registrarJugador(registroDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Jugador registrado exitosamente.");
-        } catch (IllegalStateException e) {
-            // Si el servicio lanza nuestra excepción, la capturamos
-            // y devolvemos un error 400 (Bad Request) con el mensaje.
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    public ResponseEntity<AuthenticationResponse> registrar(@RequestBody RegistroDTO request) {
+        return ResponseEntity.ok(jugadorService.registrarJugador(request));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<RespuestaLoginDTO> login(@RequestBody LoginDTO loginDTO){
-        RespuestaLoginDTO respuesta = jugadorService.autenticarJugador(loginDTO.getEmail(), loginDTO.getPassword());
-
-        if(respuesta.isExito()){
-            return ResponseEntity.ok(respuesta);
-        }else{
-            if(respuesta.getMensaje().contains("email")){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(respuesta);
-            }else{
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(respuesta);
-            }
+    public ResponseEntity<?> login(@RequestBody LoginDTO request) {
+        try{
+            AuthenticationResponse response = jugadorService.autenticarJugador(request);
+            return ResponseEntity.ok(response);
+        }catch(BadCredentialsException e){
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Error de autenticacion", "message", e.getMessage()));
         }
+
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<String> logout(HttpServletRequest request) {
-        request.getSession().invalidate();
-        return ResponseEntity.ok("Sesión cerrada correctamente");
-    }
-
+    // El endpoint de logout ya no es necesario en el backend para un sistema JWT simple.
+    // El cliente (frontend) es responsable de borrar el token para "cerrar sesión".
 }
-

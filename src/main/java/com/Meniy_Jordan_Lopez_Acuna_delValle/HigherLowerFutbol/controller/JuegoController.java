@@ -1,14 +1,13 @@
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.controller;
 
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.PartidaTorneoDTO;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.RondaResultado;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.DetalleTorneo;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service.JuegoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/juego")
@@ -40,6 +39,27 @@ public class JuegoController {
         } catch (Exception e) {
             System.err.println("Error inesperado en el controlador del juego: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/{torneoId}/nueva-ronda")
+    public ResponseEntity<RondaResultado> nuevaRondaDeTorneo(@PathVariable Long torneoId) {
+        try {
+            // Podríamos añadir lógica para verificar si el torneoId es válido.
+            RondaResultado ronda = juegoService.generarRondaParaTorneo();
+            return ResponseEntity.ok(ronda);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
+        }
+    }
+
+    @PostMapping("/registrar-partida-torneo")
+    public ResponseEntity<?> registrarPartidaDeTorneo(@RequestBody PartidaTorneoDTO partidaDTO) {
+        try {
+            DetalleTorneo puntajeActualizado = juegoService.registrarResultadoPartida(partidaDTO);
+            return ResponseEntity.ok(puntajeActualizado);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

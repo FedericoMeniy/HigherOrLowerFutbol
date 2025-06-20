@@ -16,7 +16,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TorneoDTO {
-
     private String nombreTorneo;
     private String password;
     private String tiempoLimite;

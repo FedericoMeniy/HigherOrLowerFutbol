@@ -1,104 +1,86 @@
+// Archivo: src/main/java/com/Meniy_Jordan_Lopez_Acuna_delValle/HigherLowerFutbol/entity/Jugador.java
+
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.List;
 
 @Data
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+public class Jugador implements UserDetails {
 
-public class Jugador {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "El nombre del usuario no puede ser nulo ni estar vacío.")
-    @Size(min = 2, max = 100, message = "El nombre del usuario debe tener entre 2 y 100 caracteres.")
     @Column(unique = true)
     private String username;
 
-    @NotBlank(message = "El email no puede ser nulo ni estar vacío.")
-    @Email(message = "El formato del email no es válido.")
-    @Size(min = 5, max = 100, message = "El email debe tener entre 5 y 100 caracteres.")
     @Column(unique = true)
     private String email;
 
-    @NotBlank(message = "La contraseña no puede ser nula ni estar vacía.")
-    @Size(min = 8, max = 255, message = "La contraseña debe tener entre 8 y 255 caracteres.")
     private String password;
 
-    @NotBlank(message = "El tipo de rol no puede ser nulo ni estar vacío.")
-    @Size(min = 2, max = 50, message = "El tipo de rol debe tener entre 2 y 50 caracteres.")
-    private String tipoRol;
+    private String tipoRol; // Ejemplo: "USER", "ADMIN"
 
-    @NotNull(message = "El puntaje no puede ser nulo.")
     @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
     private int puntaje = 0;
 
-    @OneToMany
+    @OneToMany(mappedBy = "creador")
     private List<Torneo> torneos;
 
-    public Long getId() {
-        return id;
+
+    // --- Métodos de la interfaz UserDetails ---
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Usamos el campo tipoRol para definir la autoridad del usuario.
+        return List.of(new SimpleGrantedAuthority(tipoRol));
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
+    @Override
     public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
+        // Spring Security usará este método para obtener el identificador del usuario.
+        // Usamos el email porque es único y es lo que pedimos en el login.
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
+    @Override
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    @Override
+    public boolean isAccountNonExpired() {
+        // Devolvemos true para indicar que la cuenta nunca expira.
+        return true;
     }
 
-    public String getTipoRol() {
-        return tipoRol;
+    @Override
+    public boolean isAccountNonLocked() {
+        // Devolvemos true para indicar que la cuenta no está bloqueada.
+        return true;
     }
 
-    public void setTipoRol(String tipoRol) {
-        this.tipoRol = tipoRol;
+    @Override
+    public boolean isCredentialsNonExpired() {
+        // Devolvemos true para indicar que las credenciales no expiran.
+        return true;
     }
 
-    public int getPuntaje() {
-        return puntaje;
-    }
-
-    public void setPuntaje(int puntaje) {
-        this.puntaje = puntaje;
-    }
-
-    public List<Torneo> getTorneos() {
-        return torneos;
-    }
-
-    public void setTorneos(List<Torneo> torneos) {
-        this.torneos = torneos;
+    @Override
+    public boolean isEnabled() {
+        // Devolvemos true para indicar que la cuenta está habilitada.
+        return true;
     }
 }
-

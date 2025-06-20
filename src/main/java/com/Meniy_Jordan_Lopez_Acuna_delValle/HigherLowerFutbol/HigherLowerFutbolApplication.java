@@ -7,17 +7,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.CommandLineRunner; // Asegúrate de importar CommandLineRunner
 
 @SpringBootApplication
-
 public class HigherLowerFutbolApplication implements CommandLineRunner {
 
 	@Autowired
 	private FutbolistaDataSyncService futbolistaDataSyncService;
 
 	public static void main(String[] args) {
-		CreacionBDD.crearBaseDatos();
 		SpringApplication.run(HigherLowerFutbolApplication.class, args);
 	}
-
 
 	@Override
 	public void run(String... args) throws Exception {

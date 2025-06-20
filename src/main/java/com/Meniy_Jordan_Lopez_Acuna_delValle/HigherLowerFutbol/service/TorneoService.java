@@ -3,15 +3,18 @@ package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.Exceptions.TorneoException;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.TorneoDTO;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.UnirseTorneoDTO;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.DetalleTorneo;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.Jugador;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.Torneo;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.TorneoPrivado;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.repository.DetalleTorneoRepository;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.repository.JugadorRepository;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.repository.TorneoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class TorneoService {
@@ -19,34 +22,43 @@ public class TorneoService {
     private TorneoRepository torneoRepository;
     @Autowired
     private JugadorRepository jugadorRepository;
-
+    @Autowired
+    private DetalleTorneoRepository detalleTorneoRepository;
 
     public Torneo crearTorneoPrivado(TorneoDTO dto, String userNameCreador){
 
-        Jugador creador = jugadorRepository.findByUsername(userNameCreador).orElseThrow(()-> new RuntimeException("Usuario creador no encontrado"));
+        // --- LA LÍNEA QUE CAMBIAMOS ---
+        // Buscamos al creador por su email, que es lo que nos llega desde el Principal de Spring Security
+        Jugador creador = jugadorRepository.findByEmail(userNameCreador).orElseThrow(()-> new RuntimeException("Usuario creador no encontrado"));
 
         TorneoPrivado nuevoTorneo = new TorneoPrivado();
         nuevoTorneo.setNombre(dto.getNombreTorneo());
         nuevoTorneo.setPassword(dto.getPassword());
         //Inserto el dueño del torneo
         nuevoTorneo.setCreador(creador);
-
-
         //El creador es el primer jugador de su torneo
         nuevoTorneo.agregarParticipante(creador);
 
         //Aca establezco el tiempo limite del torneo
-
         LocalDateTime ahora = LocalDateTime.now();
         nuevoTorneo.setFechaCreacion(ahora);
-        try{
 
-            nuevoTorneo.setFechaFin(calcularFechaFin(nuevoTorneo.getFechaFin(),dto.getTiempoLimite()));
+        try{
+            nuevoTorneo.setFechaFin(calcularFechaFin(nuevoTorneo.getFechaCreacion(),dto.getTiempoLimite()));
         }catch (TorneoException e){
-            e.getMessage("No se pudo crear el torneo");
+            throw new RuntimeException("No se pudo crear el torneo: " + e.getMessage());
         }
-        return torneoRepository.save(nuevoTorneo);
+
+        Torneo torneoGuardado = torneoRepository.save(nuevoTorneo);
+
+        DetalleTorneo nuevoDetalleTorneo = new DetalleTorneo();
+        nuevoDetalleTorneo.setJugador(creador);
+        nuevoDetalleTorneo.setTorneo(torneoGuardado);
+        detalleTorneoRepository.save(nuevoDetalleTorneo);
+
+        return torneoGuardado;
     }
+
     private LocalDateTime calcularFechaFin(LocalDateTime fechaInicio, String duracion) throws TorneoException {
         if (duracion == null || duracion.isBlank()) {
             throw new TorneoException("No se establecio duracion para el torneo");
@@ -71,7 +83,7 @@ public class TorneoService {
                 throw new IllegalArgumentException("Formato de tiempo límite no válido: " + duracion);
 
         }
-        return fechaInicio;
+        return fechaFin;
     }
 
     private Torneo unirseTorneo(Long idTorneo, UnirseTorneoDTO dto) throws RuntimeException{
@@ -94,6 +106,14 @@ public class TorneoService {
 
         // Guardamos el torneo con la lista de jugadores actualizada.
         return torneoRepository.save(torneoPrivado);
+    }
+
+    public List<DetalleTorneo> getLeaderboard(Long torneoId) {
+        // Simplemente validamos que el torneo exista antes de buscar el leaderboard
+        if (!torneoRepository.existsById(torneoId)) {
+            throw new RuntimeException("El torneo con ID " + torneoId + " no fue encontrado.");
+        }
+        return detalleTorneoRepository.findByTorneoIdOrderByPuntajeDescPartidasJugadasAsc(torneoId);
     }
 
 }
