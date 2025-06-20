@@ -2,11 +2,9 @@ package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service;
 
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.Exceptions.TorneoException;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.TorneoDTO;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.TorneoDisponibleDTO;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.UnirseTorneoDTO;
-import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.DetalleTorneo;
-import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.Jugador;
-import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.Torneo;
-import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.TorneoPrivado;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.*;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.repository.DetalleTorneoRepository;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.repository.JugadorRepository;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.repository.TorneoRepository;
@@ -15,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TorneoService {
@@ -116,4 +115,38 @@ public class TorneoService {
         return detalleTorneoRepository.findByTorneoIdOrderByPuntajeDescPartidasJugadasAsc(torneoId);
     }
 
+    public List<TorneoDisponibleDTO> getTorneosDisponiblesPorTipo(String tipo) {
+        // 1. Obtenemos todos los torneos del repositorio.
+        List<Torneo> todosLosTorneos = torneoRepository.findAll();
+
+        // 2. Filtramos y mapeamos la lista a nuestro DTO.
+        return todosLosTorneos.stream()
+                .filter(torneo -> {
+                    // Filtramos por el tipo de torneo solicitado.
+                    if ("ADMIN".equalsIgnoreCase(tipo)) {
+                        return torneo instanceof TorneoAdmin;
+                    } else if ("PRIVADO".equalsIgnoreCase(tipo)) {
+                        // Importante: en la BBDD el tipo es "AMIGO"
+                        return torneo instanceof TorneoPrivado;
+                    }
+                    return false;
+                })
+                .map(torneo -> {
+                    // 3. Transformamos cada entidad Torneo al DTO que necesita el frontend.
+                    Long id = torneo.getId();
+                    String nombre = torneo.getNombre();
+                    int costoPuntos = 0;
+                    String tipoTorneo = "";
+
+                    if (torneo instanceof TorneoAdmin) {
+                        tipoTorneo = "ADMIN";
+                        costoPuntos = ((TorneoAdmin) torneo).getPremio(); // En el backend se llama 'premio'.
+                    } else if (torneo instanceof TorneoPrivado) {
+                        tipoTorneo = "PRIVADO"; // Mapeamos "AMIGO" a "PRIVADO" para el frontend.
+                    }
+
+                    return new TorneoDisponibleDTO(id, nombre, tipoTorneo, costoPuntos);
+                })
+                .collect(Collectors.toList());
+    }
 }

@@ -38,15 +38,20 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(withDefaults())
-                .csrf(AbstractHttpConfigurer::disable) //
+                .csrf(AbstractHttpConfigurer::disable) // Deshabilita CSRF para una API REST sin estado
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/api/juego/ronda", "/apii/futbol/**").permitAll() // Se mantiene /ronda público
-                        .requestMatchers("/api/juego/guardar-puntaje", "/api/perfil/**").authenticated() // Nuevas rutas protegidas
+                        // Endpoints públicos que no requieren autenticación
+                        .requestMatchers("/auth/**", "/api/juego/ronda", "/apii/futbol/**").permitAll()
+                        // Endpoints que requieren que el usuario esté autenticado
+                        .requestMatchers("/api/juego/guardar-puntaje", "/api/perfil/**").authenticated()
+                        // Cualquier otra petición no definida anteriormente requiere autenticación
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //
-                .authenticationProvider(authenticationProvider()) //
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class); //
+                // Configura la gestión de sesiones para que sea sin estado (STATELESS)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider())
+                // Añade el filtro JWT antes del filtro de autenticación por usuario y contraseña
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -54,12 +59,16 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://127.0.0.1:5500", "null")); //
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); //
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type")); //
+        // Permite orígenes específicos (el frontend)
+        configuration.setAllowedOrigins(List.of("http://127.0.0.1:5500", "null"));
+        // Permite los métodos HTTP comunes
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // Permite cabeceras necesarias para la autenticación y el tipo de contenido
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration); //
+        // Aplica la configuración de CORS a todas las rutas
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 
@@ -71,13 +80,16 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService); //
-        authProvider.setPasswordEncoder(passwordEncoder()); //
+        // Establece el servicio que carga los detalles del usuario
+        authProvider.setUserDetailsService(userDetailsService);
+        // Establece el codificador de contraseñas
+        authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+        // Usa BCrypt como algoritmo de hashing para las contraseñas
         return new BCryptPasswordEncoder();
     }
 }
