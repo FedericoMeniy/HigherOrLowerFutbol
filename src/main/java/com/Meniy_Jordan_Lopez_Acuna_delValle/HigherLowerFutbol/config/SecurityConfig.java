@@ -37,20 +37,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Aplica la configuración de CORS del bean corsConfigurationSource()
                 .cors(withDefaults())
-                // La línea más importante: deshabilita la protección CSRF
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable) //
                 .authorizeHttpRequests(auth -> auth
-                        // Permite el acceso sin autenticación a estas rutas
-                        .requestMatchers("/auth/**", "/api/juego/**", "/apii/futbol/**").permitAll()
-                        // Cualquier otra petición requiere autenticación
+                        .requestMatchers("/auth/**", "/api/juego/ronda", "/apii/futbol/**").permitAll() // Se mantiene /ronda público
+                        .requestMatchers("/api/juego/guardar-puntaje", "/api/perfil/**").authenticated() // Nuevas rutas protegidas
                         .anyRequest().authenticated()
                 )
-                // Configura la gestión de sesión como SIN ESTADO (stateless)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //
+                .authenticationProvider(authenticationProvider()) //
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class); //
 
         return http.build();
     }
@@ -58,16 +54,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://127.0.0.1:5500", "null"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowedOrigins(List.of("http://127.0.0.1:5500", "null")); //
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); //
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type")); //
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", configuration); //
         return source;
     }
 
-    // --- El resto de los beans que ya teníamos ---
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
@@ -76,8 +71,8 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setUserDetailsService(userDetailsService); //
+        authProvider.setPasswordEncoder(passwordEncoder()); //
         return authProvider;
     }
 
