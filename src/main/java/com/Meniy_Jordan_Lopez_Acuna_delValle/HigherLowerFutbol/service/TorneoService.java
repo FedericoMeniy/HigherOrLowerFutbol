@@ -136,7 +136,7 @@ public class TorneoService {
         return detalleTorneoRepository.findByTorneoIdOrderByPuntajeDescPartidasJugadasAsc(torneoId);
     }
 
-    public List<TorneoDisponibleDTO> getTorneosDisponiblesPorTipo(String tipo) {
+    public List<TorneoDisponibleDTO> getTorneosDisponiblesPorTipo(String tipo, String nombreFilter) {
         // 1. Obtenemos todos los torneos del repositorio.
         List<Torneo> todosLosTorneos = torneoRepository.findAll();
 
@@ -144,29 +144,37 @@ public class TorneoService {
         return todosLosTorneos.stream()
                 .filter(torneo -> {
                     // Filtramos por el tipo de torneo solicitado.
+                    boolean matchesType = false;
                     if ("ADMIN".equalsIgnoreCase(tipo)) {
-                        return torneo instanceof TorneoAdmin;
+                        matchesType = torneo instanceof TorneoAdmin;
                     } else if ("PRIVADO".equalsIgnoreCase(tipo)) {
                         // Importante: en la BBDD el tipo es "AMIGO"
-                        return torneo instanceof TorneoPrivado;
+                        matchesType = torneo instanceof TorneoPrivado;
                     }
-                    return false;
+
+                    // Nuevo filtro por nombre (opcional)
+                    boolean matchesName = true;
+                    if (nombreFilter != null && !nombreFilter.isBlank()) {
+                        matchesName = torneo.getNombre().toLowerCase().contains(nombreFilter.toLowerCase());
+                    }
+
+                    return matchesType && matchesName;
                 })
                 .map(torneo -> {
                     // 3. Transformamos cada entidad Torneo al DTO que necesita el frontend.
                     Long id = torneo.getId();
                     String nombre = torneo.getNombre();
                     int costoPuntos = 0;
-                    String tipoTorneo = "";
+                    String tipoTorneoDisplay = "";
 
                     if (torneo instanceof TorneoAdmin) {
-                        tipoTorneo = "ADMIN";
-                        costoPuntos = ((TorneoAdmin) torneo).getPremio(); // En el backend se llama 'premio'.
+                        tipoTorneoDisplay = "ADMIN";
+                        costoPuntos = ((TorneoAdmin) torneo).getPremio();
                     } else if (torneo instanceof TorneoPrivado) {
-                        tipoTorneo = "PRIVADO"; // Mapeamos "AMIGO" a "PRIVADO" para el frontend.
+                        tipoTorneoDisplay = "PRIVADO";
                     }
 
-                    return new TorneoDisponibleDTO(id, nombre, tipoTorneo, costoPuntos);
+                    return new TorneoDisponibleDTO(id, nombre, tipoTorneoDisplay, costoPuntos);
                 })
                 .collect(Collectors.toList());
     }

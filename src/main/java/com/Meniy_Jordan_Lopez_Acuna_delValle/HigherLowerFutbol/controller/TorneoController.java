@@ -21,11 +21,12 @@ public class TorneoController {
 
     // Endpoint para obtener torneos disponibles
     @GetMapping("/disponibles")
-    public ResponseEntity<List<TorneoDisponibleDTO>> getTorneosDisponibles(@RequestParam String tipo) {
-        List<TorneoDisponibleDTO> torneos = torneoService.getTorneosDisponiblesPorTipo(tipo);
+    public ResponseEntity<List<TorneoDisponibleDTO>> getTorneosDisponibles(
+            @RequestParam String tipo,
+            @RequestParam(required = false) String nombre) { // Se añadió este parámetro
+        List<TorneoDisponibleDTO> torneos = torneoService.getTorneosDisponiblesPorTipo(tipo, nombre); // Se pasa el nuevo parámetro al servicio
         return ResponseEntity.ok(torneos);
     }
-
     // El resto de los endpoints ahora también estarán bajo /api/torneos
     @PostMapping("/crear-amigos")
     public ResponseEntity<?> crearTorneoAmigos(@RequestBody TorneoDTO torneoDTO, Principal principal) {
