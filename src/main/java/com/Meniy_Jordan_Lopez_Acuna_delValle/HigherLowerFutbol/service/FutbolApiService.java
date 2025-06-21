@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.Exceptions.FutbolApiException;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.exceptions.FutbolApiException;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,5 +1,6 @@
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity;
 
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.enums.Tematica;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

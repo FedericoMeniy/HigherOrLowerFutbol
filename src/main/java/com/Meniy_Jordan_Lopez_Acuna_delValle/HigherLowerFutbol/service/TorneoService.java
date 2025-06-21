@@ -1,6 +1,7 @@
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service;
 
-import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.Exceptions.TorneoException;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.enums.EstadoTorneo;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.exceptions.TorneoException;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.*;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.*;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.repository.DetalleTorneoRepository;

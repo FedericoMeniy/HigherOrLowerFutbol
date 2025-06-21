@@ -1,6 +1,6 @@
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service;
 
-import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.Exceptions.FutbolApiException;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.exceptions.FutbolApiException;
 
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.PlayerStatsData;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.Statistic;

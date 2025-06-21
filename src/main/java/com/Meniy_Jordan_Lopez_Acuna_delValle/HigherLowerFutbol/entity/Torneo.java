@@ -1,5 +1,6 @@
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity;
 
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.enums.EstadoTorneo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
