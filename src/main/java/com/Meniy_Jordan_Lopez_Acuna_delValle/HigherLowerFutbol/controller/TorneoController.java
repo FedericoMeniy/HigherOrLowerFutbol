@@ -3,6 +3,7 @@ package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.controller;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.*;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.DetalleTorneo;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.Torneo;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.exceptions.TorneoException;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service.TorneoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,11 +34,14 @@ public class TorneoController {
         try {
             Torneo nuevoTorneo = torneoService.crearTorneoPrivado(torneoDTO, principal.getName());
             return ResponseEntity.ok(nuevoTorneo);
-        } catch (RuntimeException e) {
+        }catch (TorneoException e){
+
+            return ResponseEntity.badRequest().body("Error en los datos del torneo: " + e.getMessage());
+        }
+        catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
     @GetMapping("/{torneoId}/leaderboard")
     public ResponseEntity<List<DetalleTorneo>> getLeaderboard(@PathVariable Long torneoId) {
         try {

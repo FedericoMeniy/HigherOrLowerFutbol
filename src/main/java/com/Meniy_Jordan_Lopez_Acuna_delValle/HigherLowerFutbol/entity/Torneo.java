@@ -47,6 +47,7 @@ public class Torneo {
     private LocalDateTime fechaCreacion;
 
     private LocalDateTime fechaFin;
+    @Enumerated(EnumType.STRING)
     private EstadoTorneo estadoTorneo;
     @OneToMany(mappedBy = "torneo", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference

@@ -44,12 +44,12 @@ public class HigherLowerFutbolApplication implements CommandLineRunner {
 	}
 
 	private void crearAdminSiNoExiste(){
-		String adminEmail = "adminHL@gmail.com";
-		if(!jugadorRepository.existsByEmail(adminEmail)){
+		String adminUsername = "admin";
+		if(!jugadorRepository.existsByUsername(adminUsername)){ // Correctly check by username
 			System.out.println("Creando usuario ADMIN.");
 			Jugador admin = new Jugador();
-			admin.setUsername("admin");
-			admin.setEmail(adminEmail);
+			admin.setUsername(adminUsername);
+			admin.setEmail("adminHL@gmail.com");
 			admin.setPassword(passwordEncoder.encode("admin123"));
 			admin.setTipoRol("ADMIN");
 			admin.setPuntaje(9999);

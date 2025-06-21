@@ -23,12 +23,16 @@ public class TorneoService {
     @Autowired
     private DetalleTorneoRepository detalleTorneoRepository;
 
-    public Torneo crearTorneoPrivado(TorneoDTO dto, String userNameCreador){
+    public Torneo crearTorneoPrivado(TorneoDTO dto, String userNameCreador)throws TorneoException{
 
         // --- LA LÍNEA QUE CAMBIAMOS ---
         // Buscamos al creador por su email, que es lo que nos llega desde el Principal de Spring Security
         Jugador creador = jugadorRepository.findByEmail(userNameCreador).orElseThrow(()-> new RuntimeException("Usuario creador no encontrado"));
 
+        if(torneoRepository.existsByNombre("PRIVADO")){
+
+            throw new TorneoException("El nombre del torneo que quieres ingresar ya existe");
+        }
         TorneoPrivado nuevoTorneo = new TorneoPrivado();
         nuevoTorneo.setNombre(dto.getNombreTorneo());
         nuevoTorneo.setPassword(dto.getPassword());
@@ -181,7 +185,7 @@ public class TorneoService {
     public Torneo crearTorneoOficial(TorneoOficialDTO dto, String usernameCreador) throws TorneoException {
 
         // 1. Validamos que el creador exista (lógica reutilizada)
-        Jugador creador = jugadorRepository.findByEmail(usernameCreador)
+        Jugador creador = jugadorRepository.findByUsername(usernameCreador)
                 .orElseThrow(() -> new RuntimeException("Usuario creador no encontrado"));
 
         // 2. ¡VALIDACIÓN DE SEGURIDAD IMPORTANTE!
@@ -190,21 +194,37 @@ public class TorneoService {
             throw new SecurityException("Solo los administradores pueden crear torneos oficiales.");
         }
 
-        // 3. Creamos una instancia de la entidad específica: TorneoAdmin
         TorneoAdmin nuevoTorneo = new TorneoAdmin();
         nuevoTorneo.setNombre(dto.getNombre());
         nuevoTorneo.setCreador(creador);
         nuevoTorneo.setPremio(dto.getPremio());
-        nuevoTorneo.setCostoEntrada(dto.getCostoEntrada());
-        nuevoTorneo.setEstadoTorneo(EstadoTorneo.ACTIVO);
 
-        // 4. Reutilizamos la lógica de las fechas que ya funciona
-        LocalDateTime ahora = LocalDateTime.now();
-        nuevoTorneo.setFechaCreacion(ahora);
-        nuevoTorneo.setFechaFin(calcularFechaFin(ahora, dto.getTiempoLimite()));
+        LocalDateTime fechaDeInicio;
 
-        // 5. Guardamos el nuevo torneo. Hibernate sabrá que debe poner "ADMIN"
-        // en la columna 'tipo_torneo' gracias a la anotación @DiscriminatorValue.
+        // --- ¡AQUÍ ESTÁ LA NUEVA LÓGICA DE DECISIÓN! ---
+
+        // Verificamos si el DTO trajo una fecha de inicio programada.
+        if (dto.getHoraInicio() != null && !dto.getHoraInicio().isBlank()) {
+            // CASO 1: El admin programó una fecha.
+            // Convertimos el texto que viene del JSON a un objeto LocalDateTime.
+            fechaDeInicio = LocalDateTime.parse(dto.getHoraInicio());
+            // Establecemos el estado como PENDIENTE. La tarea programada lo activará.
+            nuevoTorneo.setEstadoTorneo(EstadoTorneo.PENDIENTE);
+            System.out.println("Torneo programado para iniciar en: " + fechaDeInicio);
+
+        } else {
+            // CASO 2: El admin NO programó fecha, el torneo inicia AHORA MISMO.
+            fechaDeInicio = LocalDateTime.now();
+            // Establecemos el estado como ACTIVO inmediatamente.
+            nuevoTorneo.setEstadoTorneo(EstadoTorneo.ACTIVO);
+            System.out.println("Torneo creado y activo inmediatamente.");
+        }
+
+        nuevoTorneo.setFechaCreacion(fechaDeInicio);
+
+        // Calculamos la fecha de fin basada en la de inicio (sea la de ahora o la futura)
+        LocalDateTime fechaDeFin = calcularFechaFin(fechaDeInicio, dto.getTiempoLimite());
+        nuevoTorneo.setFechaFin(fechaDeFin);
         return torneoRepository.save(nuevoTorneo);
     }
     public Torneo unirseATorneoOficial(Long torneoId, String usernameJugador) {

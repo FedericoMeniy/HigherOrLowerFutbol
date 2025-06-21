@@ -6,6 +6,7 @@ import lombok.Data;
 public class TorneoOficialDTO {
     private String nombre;
     private String tiempoLimite;
+    private String horaInicio;
     private Integer premio;
     private Integer costoEntrada;
 }
