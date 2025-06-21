@@ -100,6 +100,8 @@ public class TorneoController {
                 return ResponseEntity.status(401).body("Debes iniciar sesión para unirte a un torneo.");
             }
 
+            // La lógica no cambia, principal.getName() sigue devolviendo el email.
+            // Solo actualizamos la llamada para que coincida con la firma del método del servicio.
             Torneo torneoActualizado = torneoService.unirseATorneoOficial(torneoId, principal.getName());
             return ResponseEntity.ok(torneoActualizado);
 
