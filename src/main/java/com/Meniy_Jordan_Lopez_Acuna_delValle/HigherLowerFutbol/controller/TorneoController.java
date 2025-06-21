@@ -1,5 +1,3 @@
-// Archivo: src/main/java/com/Meniy_Jordan_Lopez_Acuna_delValle/HigherLowerFutbol/controller/TorneoController.java
-
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.controller;
 
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.*;
@@ -15,7 +13,7 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/torneos") // ===> CORRECCIÓN AQUÍ <===
+@RequestMapping("/torneo") //
 public class TorneoController {
 
     @Autowired

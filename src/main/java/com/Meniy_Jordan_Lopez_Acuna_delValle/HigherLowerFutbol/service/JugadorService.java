@@ -29,11 +29,12 @@ public class JugadorService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse registrarJugador(RegistroDTO request) {
-        if (jugadorRepository.existsByEmail(request.getEmail())) { //
-            throw new IllegalStateException("El email ya se encuentra registrado.");
-        }
         if (jugadorRepository.existsByUsername(request.getUsername())) { //
             throw new IllegalStateException("El nombre de usuario ya existe.");
+        }
+
+        if (jugadorRepository.existsByEmail(request.getEmail())) { //
+            throw new IllegalStateException("El email ya se encuentra registrado.");
         }
 
         var jugador = new Jugador();

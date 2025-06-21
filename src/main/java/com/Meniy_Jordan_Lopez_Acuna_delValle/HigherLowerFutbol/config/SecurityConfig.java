@@ -41,9 +41,9 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable) // Deshabilita CSRF para una API REST sin estado
                 .authorizeHttpRequests(auth -> auth
                         // Endpoints públicos que no requieren autenticación
-                        .requestMatchers("/auth/**", "/api/juego/ronda", "/apii/futbol/**").permitAll()
+                        .requestMatchers("/auth/**", "/juego/ronda", "/apii/futbol/**").permitAll()
                         // Endpoints que requieren que el usuario esté autenticado
-                        .requestMatchers("/api/juego/guardar-puntaje", "/perfil/**").authenticated()
+                        .requestMatchers("/juego/guardar-puntaje", "/perfil/**").authenticated()
                         // Cualquier otra petición no definida anteriormente requiere autenticación
                         .anyRequest().authenticated()
                 )
