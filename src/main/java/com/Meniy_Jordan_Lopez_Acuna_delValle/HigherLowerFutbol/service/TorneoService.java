@@ -84,25 +84,47 @@ public class TorneoService {
         return fechaFin;
     }
 
-    public Torneo unirseTorneo(Long idTorneo, UnirseTorneoDTO dto) throws RuntimeException{
+    // En: src/main/java/com/Meniy_Jordan_Lopez_Acuna_delValle/HigherLowerFutbol/service/TorneoService.java
 
-        Torneo torneo = torneoRepository.findById(idTorneo).orElseThrow(()-> new RuntimeException("El torneo con id:" + idTorneo + "no fue encontrado"));
-        Jugador jugador = jugadorRepository.findById(dto.getIdJugador()).orElseThrow(()-> new RuntimeException("El jugador con id:"+ dto.getIdJugador()+ "No existe"));
+    public Torneo unirseTorneo(Long idTorneo, UnirseTorneoDTO dto, String userEmail) throws RuntimeException {
 
+        // 1. Buscamos el Torneo por su ID (esto ya estaba correcto).
+        Torneo torneo = torneoRepository.findById(idTorneo)
+                .orElseThrow(() -> new RuntimeException("El torneo con id: " + idTorneo + " no fue encontrado"));
+
+        // 2. ¡CORRECCIÓN IMPORTANTE! Usamos el email para buscar al Jugador.
+        // Ahora la variable 'jugador' sí existe y contiene al usuario correcto.
+        Jugador jugador = jugadorRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Error: Usuario autenticado no encontrado en la BD."));
+
+        // 3. ¡CORRECCIÓN DE SEGURIDAD! Verificamos que el torneo sea de tipo "Privado"
+        // antes de intentar acceder a su contraseña. Esto evita errores de casteo.
+        if (!(torneo instanceof TorneoPrivado)) {
+            throw new RuntimeException("Este método es solo para unirse a torneos privados.");
+        }
         TorneoPrivado torneoPrivado = (TorneoPrivado) torneo;
-        if(!torneoPrivado.getPassword().equals(dto.getPassword())){
 
+        // 4. Validamos la contraseña (esto ya estaba correcto).
+        if (!torneoPrivado.getPassword().equals(dto.getPassword())) {
             throw new RuntimeException("Contraseña incorrecta");
         }
 
+        // 5. Verificamos si el jugador ya está en el torneo.
         if (torneo.getJugadores().contains(jugador)) {
             throw new RuntimeException("Este jugador ya se encuentra en el torneo.");
         }
 
-
+        // 6. Si todas las validaciones pasan, agregamos al participante.
         torneoPrivado.agregarParticipante(jugador);
 
-        // Guardamos el torneo con la lista de jugadores actualizada.
+        // 7. Creamos su registro en DetalleTorneo para llevar su puntaje.
+        DetalleTorneo nuevoDetalleTorneo = new DetalleTorneo();
+        nuevoDetalleTorneo.setTorneo(torneoPrivado);
+        nuevoDetalleTorneo.setJugador(jugador);
+        detalleTorneoRepository.save(nuevoDetalleTorneo);
+
+
+        // 8. Guardamos el torneo con la lista de jugadores actualizada.
         return torneoRepository.save(torneoPrivado);
     }
 

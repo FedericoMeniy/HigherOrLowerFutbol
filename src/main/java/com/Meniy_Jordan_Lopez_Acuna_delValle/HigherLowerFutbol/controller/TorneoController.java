@@ -46,18 +46,18 @@ public class TorneoController {
             return ResponseEntity.badRequest().body(null);
         }
     }
-
     @PostMapping("/{torneoId}/unirse")
-    public ResponseEntity<?> unirseATorneo(@PathVariable Long torneoId, @RequestBody UnirseTorneoDTO dto) {
+    public ResponseEntity<?> unirseATorneo(@PathVariable Long torneoId,
+                                           @RequestBody UnirseTorneoDTO dto,
+                                           Principal principal) {
         try {
-            Torneo torneoActualizado = torneoService.unirseTorneo(torneoId, dto);
+            // Pasar el email del usuario autenticado al servicio
+            Torneo torneoActualizado = torneoService.unirseTorneo(torneoId, dto, principal.getName());
             return ResponseEntity.ok(torneoActualizado);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    //Endpoint para finalizar un torneo y repartir los premios.
-    // Debería estar protegido para que solo lo pueda llamar un admin.
 
     @PostMapping("/{torneoId}/finalizar")
     public ResponseEntity<?> finalizarTorneo(@PathVariable Long torneoId) {
