@@ -18,5 +18,6 @@ import java.util.List;
 public class TorneoAdmin extends Torneo{
 
     @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
-    private int premio;
+    private Integer premio;
+    private Integer costoEntrada;
 }

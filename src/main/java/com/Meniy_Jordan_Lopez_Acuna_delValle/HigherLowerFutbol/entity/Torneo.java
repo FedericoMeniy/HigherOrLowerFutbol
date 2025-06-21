@@ -44,6 +44,9 @@ public class Torneo {
     private LocalDateTime fechaCreacion;
 
     private LocalDateTime fechaFin;
+    private EstadoTorneo estadoTorneo;
+    @OneToMany(mappedBy = "torneo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DetalleTorneo> detalles;
 
     public void setCreador(Jugador creador) {
         this.creador = creador;

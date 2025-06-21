@@ -1,9 +1,7 @@
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service;
 
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.Exceptions.TorneoException;
-import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.TorneoDTO;
-import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.TorneoDisponibleDTO;
-import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.UnirseTorneoDTO;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.*;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.*;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.repository.DetalleTorneoRepository;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.repository.JugadorRepository;
@@ -149,4 +147,197 @@ public class TorneoService {
                 })
                 .collect(Collectors.toList());
     }
+    public Torneo crearTorneoOficial(TorneoOficialDTO dto, String usernameCreador) throws TorneoException {
+
+        // 1. Validamos que el creador exista (lógica reutilizada)
+        Jugador creador = jugadorRepository.findByUsername(usernameCreador)
+                .orElseThrow(() -> new RuntimeException("Usuario creador no encontrado"));
+
+        // 2. ¡VALIDACIÓN DE SEGURIDAD IMPORTANTE!
+        // Verificamos que el rol del jugador sea "ADMIN".
+        if (!"ADMIN".equalsIgnoreCase(creador.getTipoRol())) {
+            throw new SecurityException("Solo los administradores pueden crear torneos oficiales.");
+        }
+
+        // 3. Creamos una instancia de la entidad específica: TorneoAdmin
+        TorneoAdmin nuevoTorneo = new TorneoAdmin();
+        nuevoTorneo.setNombre(dto.getNombre());
+        nuevoTorneo.setCreador(creador);
+        nuevoTorneo.setPremio(dto.getPremio());
+        nuevoTorneo.setCostoEntrada(dto.getCostoEntrada());
+        nuevoTorneo.setEstadoTorneo(EstadoTorneo.ACTIVO);
+
+        // 4. Reutilizamos la lógica de las fechas que ya funciona
+        LocalDateTime ahora = LocalDateTime.now();
+        nuevoTorneo.setFechaCreacion(ahora);
+        nuevoTorneo.setFechaFin(calcularFechaFin(ahora, dto.getTiempoLimite()));
+
+        // 5. Guardamos el nuevo torneo. Hibernate sabrá que debe poner "ADMIN"
+        // en la columna 'tipo_torneo' gracias a la anotación @DiscriminatorValue.
+        return torneoRepository.save(nuevoTorneo);
+    }
+    public Torneo unirseATorneoOficial(Long torneoId, String usernameJugador) {
+
+        // 1. Buscamos el torneo y el jugador (lógica reutilizada).
+        Torneo torneo = torneoRepository.findById(torneoId)
+                .orElseThrow(() -> new RuntimeException("El torneo con ID " + torneoId + " no fue encontrado."));
+
+        Jugador jugador = jugadorRepository.findByUsername(usernameJugador)
+                .orElseThrow(() -> new RuntimeException("Error fatal: Usuario autenticado no encontrado."));
+
+        // 2. Validamos que el torneo sea un TorneoAdmin.
+        if (!(torneo instanceof TorneoAdmin)) {
+            throw new RuntimeException("Solo puedes unirte a torneos oficiales a través de esta función.");
+        }
+        TorneoAdmin torneoOficial = (TorneoAdmin) torneo;
+
+        // 3. Validamos que el torneo esté ACTIVO (¡usando nuestro enum!).
+        if (torneo.getEstadoTorneo() != EstadoTorneo.ACTIVO) {
+            throw new RuntimeException("No te puedes unir a un torneo que ya ha finalizado.");
+        }
+
+        // 4. Verificamos que el jugador no esté ya en el torneo.
+        if (torneo.getJugadores().contains(jugador)) {
+            throw new RuntimeException("Ya estás inscrito en este torneo.");
+        }
+
+        // 5. --- ¡LÓGICA NUEVA Y CLAVE: VERIFICAR Y COBRAR PUNTOS! ---
+        int costo = torneoOficial.getCostoEntrada();
+        int puntosDelJugador = jugador.getPuntaje();
+
+        if (puntosDelJugador < costo) {
+            throw new RuntimeException("No tienes suficientes puntos para unirte. Necesitas " + costo + " y tienes " + puntosDelJugador + ".");
+        }
+
+        // Si tiene suficientes puntos, se los restamos de su puntaje GLOBAL.
+        jugador.setPuntaje(puntosDelJugador - costo);
+        jugadorRepository.save(jugador); // Guardamos al jugador con su nuevo total de puntos.
+
+        // 6. Si todas las validaciones pasan, lo añadimos al torneo.
+        torneo.agregarParticipante(jugador);
+        Torneo torneoActualizado = torneoRepository.save(torneo);
+
+        // 7. Creamos su entrada en la tabla de puntajes (DetalleTorneo).
+        DetalleTorneo nuevoDetalleTorneo = new DetalleTorneo();
+        nuevoDetalleTorneo.setTorneo(torneoActualizado);
+        nuevoDetalleTorneo.setJugador(jugador);
+        detalleTorneoRepository.save(nuevoDetalleTorneo);
+
+        return torneoActualizado;
+    }
+    public void finalizarTorneoYRepartirPremios(Long torneoId) {
+        // 1. Buscamos el torneo y validamos
+        Torneo torneo = torneoRepository.findById(torneoId)
+                .orElseThrow(() -> new RuntimeException("El torneo no fue encontrado."));
+
+        // --- CAMBIO CLAVE 1: Comparación con Enum ---
+        // Ahora comparamos directamente con el valor del enum.
+        // Es más seguro (sin errores de tipeo) y más claro.
+        if (torneo.getEstadoTorneo() != EstadoTorneo.ACTIVO) {
+            throw new RuntimeException("Este torneo ya ha sido finalizado o cancelado.");
+        }
+
+        // Verificamos que sea un TorneoAdmin para poder obtener el premio
+        if (!(torneo instanceof TorneoAdmin)) {
+            throw new RuntimeException("Solo los torneos oficiales pueden repartir premios.");
+        }
+        TorneoAdmin torneoAdmin = (TorneoAdmin) torneo;
+        int premioTotal = torneoAdmin.getPremio();
+
+        // 2. Obtenemos la tabla de posiciones final (esta parte no cambia)
+        List<DetalleTorneo> leaderboard = getLeaderboard(torneoId);
+
+        // 3. Repartimos los premios (esta lógica no cambia)
+        if (leaderboard != null && !leaderboard.isEmpty()) {
+
+            // --- Premio para el 1er Puesto ---
+            if (leaderboard.size() >= 1) {
+                DetalleTorneo ganador = leaderboard.get(0);
+                Jugador jugadorGanador = ganador.getJugador();
+                int premioGanador = (int) (premioTotal * 0.50); // 50%
+
+                jugadorGanador.setPuntaje(jugadorGanador.getPuntaje() + premioGanador);
+                jugadorRepository.save(jugadorGanador);
+            }
+
+            // --- Premio para el 2do Puesto ---
+            if (leaderboard.size() >= 2) {
+                DetalleTorneo segundo = leaderboard.get(1);
+                Jugador jugadorSegundo = segundo.getJugador();
+                int premioSegundo = (int) (premioTotal * 0.30); // 30%
+
+                jugadorSegundo.setPuntaje(jugadorSegundo.getPuntaje() + premioSegundo);
+                jugadorRepository.save(jugadorSegundo);
+            }
+
+            // --- Premio para el 3er Puesto ---
+            if (leaderboard.size() >= 3) {
+                DetalleTorneo tercero = leaderboard.get(2);
+                Jugador jugadorTercero = tercero.getJugador();
+                int premioTercero = (int) (premioTotal * 0.20); // 20%
+
+                jugadorTercero.setPuntaje(jugadorTercero.getPuntaje() + premioTercero);
+                jugadorRepository.save(jugadorTercero);
+            }
+        }
+
+        torneo.setEstadoTorneo(EstadoTorneo.FINALIZADO);
+        torneoRepository.save(torneo);
+    }
+    public Torneo actualizarTorneoOficial(Long torneoId, ActualizarTorneoOficialDTO dto, String usernameAdmin) {
+        // 1. Validamos que el admin exista
+        Jugador admin = jugadorRepository.findByUsername(usernameAdmin)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
+
+        // 2. ¡VALIDACIÓN DE SEGURIDAD!
+        if (!"ADMIN".equalsIgnoreCase(admin.getTipoRol())) {
+            throw new SecurityException("Solo los administradores pueden modificar torneos.");
+        }
+
+        // 3. Buscamos el torneo y validamos que sea un TorneoAdmin
+        Torneo torneo = torneoRepository.findById(torneoId)
+                .orElseThrow(() -> new RuntimeException("El torneo no fue encontrado."));
+
+        if (!(torneo instanceof TorneoAdmin)) {
+            throw new RuntimeException("Este método solo puede modificar torneos oficiales.");
+        }
+
+        TorneoAdmin torneoAdmin = (TorneoAdmin) torneo;
+
+        if (dto.getPremio() != null) {
+
+            torneoAdmin.setPremio(dto.getPremio());
+        }
+
+
+        // Actualizar el costo de puntos:
+        if (dto.getCostoEntrada() != null) {
+            torneoAdmin.setCostoEntrada(dto.getCostoEntrada());
+        }
+
+        // 5. Guardamos el torneo actualizado con solo los cambios aplicados.
+        return torneoRepository.save(torneoAdmin);
+    }
+    public void eliminarTorneo(Long torneoId, String usernameAdmin) {
+        // 1. Validamos que el usuario que ejecuta la acción sea un ADMIN.
+        // Esta lógica es crucial para la seguridad.
+        Jugador admin = jugadorRepository.findByUsername(usernameAdmin)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
+
+        // Usando el enum para una comparación segura.
+        if (!"ADMIN".equalsIgnoreCase(admin.getTipoRol())) {
+            throw new SecurityException("Solo los administradores pueden eliminar torneos.");
+        }
+
+        // 2. Verificamos que el torneo realmente exista antes de intentar borrarlo.
+        // Esto evita errores si se intenta borrar un ID que ya no está.
+        if (!torneoRepository.existsById(torneoId)) {
+            throw new RuntimeException("El torneo con ID " + torneoId + " no fue encontrado.");
+        }
+
+        // 3. ¡Y LISTO! Simplemente borramos el torneo por su ID.
+        // Gracias a la configuración de cascada en la entidad Torneo, Hibernate se encarga del resto.
+        torneoRepository.deleteById(torneoId);
+    }
+
 }

@@ -2,13 +2,12 @@
 
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.controller;
 
-import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.TorneoDTO;
-import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.TorneoDisponibleDTO;
-import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.UnirseTorneoDTO;
+import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.*;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.DetalleTorneo;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.Torneo;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service.TorneoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,4 +58,92 @@ public class TorneoController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    //Endpoint para finalizar un torneo y repartir los premios.
+    // Debería estar protegido para que solo lo pueda llamar un admin.
+
+    @PostMapping("/{torneoId}/finalizar")
+    public ResponseEntity<?> finalizarTorneo(@PathVariable Long torneoId) {
+        try {
+            torneoService.finalizarTorneoYRepartirPremios(torneoId);
+            return ResponseEntity.ok("Torneo finalizado y premios repartidos exitosamente.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    @PostMapping("/crear-oficial")
+    public ResponseEntity<?> crearTorneoOficial(@RequestBody TorneoOficialDTO torneoDTO, Principal principal) {
+        try {
+            if (principal == null) {
+                return ResponseEntity.status(401).body("No estás autenticado.");
+            }
+
+            Torneo nuevoTorneo = torneoService.crearTorneoOficial(torneoDTO, principal.getName());
+            return ResponseEntity.ok(nuevoTorneo);
+
+        } catch (SecurityException e) {
+            // Atrapamos específicamente el error de seguridad si un no-admin intenta crear el torneo
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (Exception e) {
+            // Atrapamos otros errores generales
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    @PostMapping("/{torneoId}/unirse-oficial")
+    public ResponseEntity<?> unirseATorneoOficial(@PathVariable Long torneoId, Principal principal) {
+        try {
+            if (principal == null) {
+                return ResponseEntity.status(401).body("Debes iniciar sesión para unirte a un torneo.");
+            }
+
+            Torneo torneoActualizado = torneoService.unirseATorneoOficial(torneoId, principal.getName());
+            return ResponseEntity.ok(torneoActualizado);
+
+        } catch (RuntimeException e) {
+            // Atrapa errores como "Torneo no encontrado", "No tienes suficientes puntos", etc.
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    @PutMapping("/{torneoId}/actualizar-oficial")
+    public ResponseEntity<?> actualizarTorneoOficial(@PathVariable Long torneoId, @RequestBody ActualizarTorneoOficialDTO dto, Principal principal) {
+
+        try {
+            if (principal == null) {
+                return ResponseEntity.status(401).body("No estás autenticado.");
+            }
+
+            Torneo torneoActualizado = torneoService.actualizarTorneoOficial(torneoId, dto, principal.getName());
+            return ResponseEntity.ok(torneoActualizado);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    @DeleteMapping("/{torneoId}/eliminar")
+    public ResponseEntity<?> eliminarTorneo(@PathVariable Long torneoId, Principal principal) {
+        try {
+            // Validación de seguridad: nos aseguramos de que haya un usuario logueado.
+            if (principal == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No estás autenticado.");
+            }
+
+            // 1. Llamamos al método del servicio, pasándole el ID del torneo
+            //    y el nombre del usuario que realiza la acción para la validación de rol.
+            torneoService.eliminarTorneo(torneoId, principal.getName());
+
+            // 2. Si la eliminación es exitosa, devolvemos una respuesta 200 OK
+            //    con un mensaje de confirmación.
+            return ResponseEntity.ok("Torneo eliminado exitosamente.");
+
+        } catch (SecurityException e) {
+            // CASO 1: Atrapamos específicamente el error de permisos.
+            // Es una buena práctica devolver un código 403 Forbidden para este caso.
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+
+        } catch (RuntimeException e) {
+            // CASO 2: Atrapamos cualquier otro error de ejecución
+            // (como "Torneo no encontrado") y devolvemos un 400 Bad Request.
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 }
