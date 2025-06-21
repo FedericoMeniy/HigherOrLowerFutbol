@@ -1,5 +1,7 @@
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -12,6 +14,7 @@ public class DetalleTorneo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
+    @JsonBackReference
     private Torneo torneo;
     @ManyToOne
     private Jugador jugador;

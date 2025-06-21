@@ -2,6 +2,8 @@
 
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -37,6 +39,7 @@ public class Jugador implements UserDetails {
     private int puntaje = 0;
 
     @OneToMany(mappedBy = "creador")
+    @JsonBackReference
     private List<Torneo> torneos;
 
 

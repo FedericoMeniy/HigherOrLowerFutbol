@@ -173,7 +173,7 @@ public class TorneoService {
     public Torneo crearTorneoOficial(TorneoOficialDTO dto, String usernameCreador) throws TorneoException {
 
         // 1. Validamos que el creador exista (lógica reutilizada)
-        Jugador creador = jugadorRepository.findByUsername(usernameCreador)
+        Jugador creador = jugadorRepository.findByEmail(usernameCreador)
                 .orElseThrow(() -> new RuntimeException("Usuario creador no encontrado"));
 
         // 2. ¡VALIDACIÓN DE SEGURIDAD IMPORTANTE!

@@ -70,7 +70,10 @@ public class JugadorService {
         );
 
         var jwtToken = jwtService.generateToken(jugador);
-        return AuthenticationResponse.builder().token(jwtToken).build();
+        return AuthenticationResponse.builder()
+                .token(jwtToken)
+                .tipoRol(jugador.getTipoRol())
+                .build();
     }
 
     @Transactional

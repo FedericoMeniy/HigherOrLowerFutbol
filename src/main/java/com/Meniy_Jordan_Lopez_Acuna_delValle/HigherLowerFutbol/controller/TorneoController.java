@@ -68,6 +68,7 @@ public class TorneoController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
     @PostMapping("/crear-oficial")
     public ResponseEntity<?> crearTorneoOficial(@RequestBody TorneoOficialDTO torneoDTO, Principal principal) {
         try {
@@ -86,6 +87,7 @@ public class TorneoController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
     @PostMapping("/{torneoId}/unirse-oficial")
     public ResponseEntity<?> unirseATorneoOficial(@PathVariable Long torneoId, Principal principal) {
         try {
