@@ -14,7 +14,6 @@ public interface TorneoRepository extends JpaRepository<Torneo, Long> {
     boolean existsByNombre(String nombre);
     List<Torneo> findByEstadoTorneoAndFechaCreacionBefore(EstadoTorneo estadoTorneo, LocalDateTime fecha);
     List<Torneo> findByCreadorId(Long creadorId);
-
     List<Torneo> findByEstadoTorneoAndFechaFinBefore(EstadoTorneo estado, LocalDateTime fechaActual);
 
 }

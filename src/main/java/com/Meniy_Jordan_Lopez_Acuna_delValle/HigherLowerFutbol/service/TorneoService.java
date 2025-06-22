@@ -27,7 +27,7 @@ public class TorneoService {
 
         Jugador creador = jugadorRepository.findByEmail(userNameCreador).orElseThrow(()-> new RuntimeException("Usuario creador no encontrado"));
 
-        if(torneoRepository.existsByNombre("PRIVADO")){
+        if(torneoRepository.existsByNombre(dto.getNombreTorneo())){
             throw new TorneoException("El nombre del torneo que quieres ingresar ya existe");
         }
 
@@ -171,6 +171,10 @@ public class TorneoService {
 
         if (!"ADMIN".equalsIgnoreCase(creador.getTipoRol())) {
             throw new SecurityException("Solo los administradores pueden crear torneos oficiales.");
+        }
+
+        if(torneoRepository.existsByNombre(dto.getNombre())){
+            throw new TorneoException("El nombre del torneo que quieres ingresar ya existe");
         }
 
         TorneoAdmin nuevoTorneo = new TorneoAdmin();

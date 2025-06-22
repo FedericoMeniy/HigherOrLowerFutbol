@@ -36,7 +36,7 @@ public class TorneoController {
             return ResponseEntity.ok(nuevoTorneo);
         }catch (TorneoException e){
 
-            return ResponseEntity.badRequest().body("Error en los datos del torneo: " + e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
         catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -84,10 +84,12 @@ public class TorneoController {
             Torneo nuevoTorneo = torneoService.crearTorneoOficial(torneoDTO, principal.getName());
             return ResponseEntity.ok(nuevoTorneo);
 
-        } catch (SecurityException e) {
+        }catch(TorneoException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }catch (SecurityException e) {
             // Atrapamos específicamente el error de seguridad si un no-admin intenta crear el torneo
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
-        } catch (Exception e) {
+        }catch (Exception e) {
             // Atrapamos otros errores generales
             return ResponseEntity.badRequest().body(e.getMessage());
         }
