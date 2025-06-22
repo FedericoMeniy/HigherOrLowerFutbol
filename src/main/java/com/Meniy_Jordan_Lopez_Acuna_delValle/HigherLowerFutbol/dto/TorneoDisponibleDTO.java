@@ -1,4 +1,4 @@
-package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto;
+package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto;// Archivo: src/main/java/com/Meniy_Jordan_Lopez_Acuna_delValle/HigherLowerFutbol/dto/TorneoDisponibleDTO.java
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,4 +12,5 @@ public class TorneoDisponibleDTO {
     private String nombre;
     private String tipo; // "ADMIN" o "PRIVADO"
     private int costoPuntos;
+    private Integer premio; // <-- AÑADIR ESTE CAMPO
 }
