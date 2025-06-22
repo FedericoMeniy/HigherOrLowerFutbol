@@ -153,4 +153,24 @@ public class TorneoController {
         }
     }
 
+    // --- NUEVO ENDPOINT 1 ---
+    @GetMapping("/inscriptos")
+    public ResponseEntity<List<TorneoDisponibleDTO>> getTorneosInscritos(Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        List<TorneoDisponibleDTO> torneos = torneoService.getTorneosInscritos(principal.getName());
+        return ResponseEntity.ok(torneos);
+    }
+
+    // --- NUEVO ENDPOINT 2 ---
+    @GetMapping("/creados")
+    public ResponseEntity<List<TorneoDisponibleDTO>> getTorneosCreados(Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        List<TorneoDisponibleDTO> torneos = torneoService.getTorneosCreados(principal.getName());
+        return ResponseEntity.ok(torneos);
+    }
+
 }

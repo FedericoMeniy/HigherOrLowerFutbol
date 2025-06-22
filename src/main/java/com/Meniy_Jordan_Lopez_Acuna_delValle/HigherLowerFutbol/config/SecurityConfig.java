@@ -1,5 +1,3 @@
-// Archivo: src/main/java/com/Meniy_Jordan_Lopez_Acuna_delValle/HigherLowerFutbol/config/SecurityConfig.java
-
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.config;
 
 import lombok.RequiredArgsConstructor;
@@ -43,7 +41,7 @@ public class SecurityConfig {
                         // Endpoints públicos que no requieren autenticación
                         .requestMatchers("/auth/**", "/juego/ronda", "/apii/futbol/**").permitAll()
                         // Endpoints que requieren que el usuario esté autenticado
-                        .requestMatchers("/juego/guardar-puntaje", "/perfil/**").authenticated()
+                        .requestMatchers("/juego/guardar-puntaje", "/perfil/**", "/torneo/inscriptos", "/torneo/creados").authenticated()
                         // Cualquier otra petición no definida anteriormente requiere autenticación
                         .anyRequest().authenticated()
                 )

@@ -13,6 +13,6 @@ public interface DetalleTorneoRepository extends JpaRepository<DetalleTorneo,Lon
     Optional<DetalleTorneo> findByTorneoAndJugador(Torneo torneo, Jugador jugador);
 
     List<DetalleTorneo> findByTorneoIdOrderByPuntajeDescPartidasJugadasAsc(Long torneoId);
-
+    List<DetalleTorneo> findByJugadorId(Long jugadorId);
 }
 

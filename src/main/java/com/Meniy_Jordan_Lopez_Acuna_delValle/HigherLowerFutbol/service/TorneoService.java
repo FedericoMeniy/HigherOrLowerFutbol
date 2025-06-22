@@ -30,6 +30,7 @@ public class TorneoService {
         if(torneoRepository.existsByNombre("PRIVADO")){
             throw new TorneoException("El nombre del torneo que quieres ingresar ya existe");
         }
+
         TorneoPrivado nuevoTorneo = new TorneoPrivado();
         nuevoTorneo.setNombre(dto.getNombreTorneo());
         nuevoTorneo.setPassword(dto.getPassword());
@@ -327,5 +328,40 @@ public class TorneoService {
         }
 
         torneoRepository.deleteById(torneoId);
+    }
+
+    public List<TorneoDisponibleDTO> getTorneosInscritos(String userEmail) {
+        Jugador jugador = jugadorRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
+
+        List<DetalleTorneo> detalles = detalleTorneoRepository.findByJugadorId(jugador.getId());
+
+        return detalles.stream()
+                .map(detalle -> {
+                    Torneo torneo = detalle.getTorneo();
+                    String tipoTorneo = (torneo instanceof TorneoAdmin) ? "ADMIN" : "PRIVADO";
+                    int costo = (torneo instanceof TorneoAdmin) ? ((TorneoAdmin) torneo).getCostoEntrada() : 0;
+                    Integer premio = (torneo instanceof TorneoAdmin) ? ((TorneoAdmin) torneo).getPremio() : null;
+
+                    return new TorneoDisponibleDTO(torneo.getId(), torneo.getNombre(), tipoTorneo, costo, premio);
+                })
+                .collect(Collectors.toList());
+    }
+
+    // --- NUEVO MÉTODO 2 ---
+    public List<TorneoDisponibleDTO> getTorneosCreados(String userEmail) {
+        Jugador jugador = jugadorRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado."));
+
+        List<Torneo> torneosCreados = torneoRepository.findByCreadorId(jugador.getId());
+
+        return torneosCreados.stream()
+                .map(torneo -> {
+                    String tipoTorneo = (torneo instanceof TorneoAdmin) ? "ADMIN" : "PRIVADO";
+                    int costo = (torneo instanceof TorneoAdmin) ? ((TorneoAdmin) torneo).getCostoEntrada() : 0;
+                    Integer premio = (torneo instanceof TorneoAdmin) ? ((TorneoAdmin) torneo).getPremio() : null;
+                    return new TorneoDisponibleDTO(torneo.getId(), torneo.getNombre(), tipoTorneo, costo, premio);
+                })
+                .collect(Collectors.toList());
     }
 }
