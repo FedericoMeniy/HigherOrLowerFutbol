@@ -17,7 +17,7 @@ public class HigherOrLower {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private Tematica tematica; // goles, asistencias, rojas, amarillas, (PUEDE SER UN ENUM!!)
+    private Tematica tematica;
     private String entity1;
     private String entity2;
     private String imagenEntity1;

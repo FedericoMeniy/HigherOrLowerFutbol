@@ -35,7 +35,7 @@ public class Torneo {
     @JoinTable(
             name = "torneo_jugador",
             joinColumns = @JoinColumn(name = "torneo_id"),
-            inverseJoinColumns = @JoinColumn(name = "jugador_id")     /// Probando cosas
+            inverseJoinColumns = @JoinColumn(name = "jugador_id")
     )
     @JsonManagedReference
     private List<Jugador> jugadores = new ArrayList<>();

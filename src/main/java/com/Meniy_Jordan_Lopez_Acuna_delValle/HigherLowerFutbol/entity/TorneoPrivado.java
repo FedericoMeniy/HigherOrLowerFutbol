@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 
-@DiscriminatorValue("AMIGO")        /// Antes estaba como "ADMIN"
+@DiscriminatorValue("AMIGO")
 public class TorneoPrivado extends Torneo{
 
     @NotBlank(message = "La contraseña no puede ser nulo")

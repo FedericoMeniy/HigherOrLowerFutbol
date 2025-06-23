@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class TorneoDisponibleDTO {
     private Long id;
     private String nombre;
-    private String tipo; // "ADMIN" o "PRIVADO"
+    private String tipo;
     private int costoPuntos;
-    private Integer premio; // <-- AÑADIR ESTE CAMPO
+    private Integer premio;
 }

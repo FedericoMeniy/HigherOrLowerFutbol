@@ -14,5 +14,4 @@ public class CardStats {
     @JsonProperty("yellowred")
     private Integer yellowred;
 
-    // Getters y Setters
 }

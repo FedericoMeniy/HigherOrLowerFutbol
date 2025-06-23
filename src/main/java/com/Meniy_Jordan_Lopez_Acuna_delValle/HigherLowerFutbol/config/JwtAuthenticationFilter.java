@@ -1,5 +1,3 @@
-// Archivo: src/main/java/com/Meniy_Jordan_Lopez_Acuna_delValle/HigherLowerFutbol/config/JwtAuthenticationFilter.java
-
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.config;
 
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service.JwtService;
@@ -37,13 +35,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         final String requestURI = request.getRequestURI();
 
-        // Comprobamos si la ruta es para Swagger.
         if (requestURI.startsWith("/swagger-ui") || requestURI.startsWith("/v3/api-docs")) {
-            // Si es una ruta de Swagger, le decimos al filtro que la ignore
-            // y la pase directamente al siguiente filtro de la cadena, sin hacer
-            // ninguna validación de JWT.
             filterChain.doFilter(request, response);
-            return; // ¡Importante! 'return' para salir del método aquí.
+            return;
         }
 
         logger.info("==> Iniciando filtro JWT para la petición: {}", request.getRequestURI());
@@ -84,7 +78,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            // Este log es CRUCIAL. Si ves esto, aquí está el problema.
+
             logger.error("==> EXCEPCIÓN durante el procesamiento del filtro JWT: {}", e.getMessage());
         }
 

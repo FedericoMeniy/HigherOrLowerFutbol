@@ -19,9 +19,6 @@ public class FutbolApiService {
     private final String API_KEY = "9909b6a71e75872ff7f27fbb99fb3801";
     private final RestTemplate restTemplate = new RestTemplate();
 
-    //public void importarFutbolistasDesdeApi(int ligaId, int temporada)
-
-    // Utilidad para evitar nulls
     private Integer getSafeInt(JsonNode node, String campoPadre, String campoHijo) {
         JsonNode padre = node.get(campoPadre);
         if (padre != null && padre.has(campoHijo) && !padre.get(campoHijo).isNull()) {
@@ -29,7 +26,7 @@ public class FutbolApiService {
         }
         return 0;
     }
-    //Obtener jugador por id
+
     public String obtenerJugadorPorId(int jugadorId, int temporada) {
         String url = API_URL + "/players?id=" + jugadorId + "&season=" + temporada;
 

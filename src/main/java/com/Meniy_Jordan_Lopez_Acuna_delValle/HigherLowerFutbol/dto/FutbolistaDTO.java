@@ -5,13 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-@JsonIgnoreProperties(ignoreUnknown = true)     /// Ignora los datos que no queremos para el futbolista
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FutbolistaDTO {
 
-    @JsonProperty("id")         /// No existe "idApi" cuando haces el llamado, seria id y supongo que con idApi querian mostrar
-    private Integer idApi;      /// la id del jugador de la api
+    @JsonProperty("id")
+    private Integer idApi;
 
-    @JsonProperty("name")       /// mas o menos lo mismo
+    @JsonProperty("name")
     private String nombre;
 
     @JsonProperty("photo")

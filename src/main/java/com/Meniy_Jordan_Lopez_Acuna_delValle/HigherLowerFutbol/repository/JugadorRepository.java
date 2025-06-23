@@ -9,11 +9,9 @@ import java.util.Optional;
 @Repository
 public interface JugadorRepository extends JpaRepository<Jugador, Long> {
 
-    // Spring Data JPA entiende que este método debe buscar en la columna 'email'
-    // y devolver true si encuentra al menos una coincidencia.
+
     boolean existsByEmail(String email);
 
-    // Hacemos lo mismo para el nombre de usuario (username)
     boolean existsByUsername(String username);
 
     Optional<Jugador> findByEmail(String email);

@@ -14,16 +14,13 @@ public class LoginDTO {
     private String email;
     private String password;
 
-    // Constructor vacío
     public LoginDTO() {}
 
-    // Constructor con parámetros
     public LoginDTO(String email, String password) {
         this.email = email;
         this.password = password;
     }
 
-    // Getters y setters
     public String getEmail() {
         return email;
     }

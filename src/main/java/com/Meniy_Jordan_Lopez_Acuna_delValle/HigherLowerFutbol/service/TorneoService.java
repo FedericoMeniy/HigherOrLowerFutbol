@@ -142,7 +142,7 @@ public class TorneoService {
                     Long id = torneo.getId();
                     String nombre = torneo.getNombre();
                     int costoPuntos = 0;
-                    Integer premio = 0; // --- CAMBIO: Variable para el premio ---
+                    Integer premio = 0;
                     String tipoTorneoDisplay = "";
 
                     if (torneo instanceof TorneoAdmin) {
@@ -152,14 +152,12 @@ public class TorneoService {
                         Integer costo = torneoAdmin.getCostoEntrada();
                         costoPuntos = (costo != null) ? costo : 0;
 
-                        premio = torneoAdmin.getPremio(); // --- CAMBIO: Obtener el premio ---
+                        premio = torneoAdmin.getPremio();
 
                     } else if (torneo instanceof TorneoPrivado) {
                         tipoTorneoDisplay = "PRIVADO";
                     }
 
-                    // --- CAMBIO: Pasar el premio al constructor del DTO ---
-                    // (Asegúrate de que TorneoDisponibleDTO tenga el campo y constructor)
                     return new TorneoDisponibleDTO(id, nombre, tipoTorneoDisplay, costoPuntos, premio);
                 })
                 .collect(Collectors.toList());

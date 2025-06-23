@@ -59,7 +59,7 @@ public class HigherLowerFutbolApplication implements CommandLineRunner {
 
 	private void crearAdminSiNoExiste(){
 		String adminUsername = "admin";
-		if(!jugadorRepository.existsByUsername(adminUsername)){ // Correctly check by username
+		if(!jugadorRepository.existsByUsername(adminUsername)){
 			System.out.println("Creando usuario ADMIN.");
 			Jugador admin = new Jugador();
 			admin.setUsername(adminUsername);

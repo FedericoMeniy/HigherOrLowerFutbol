@@ -16,10 +16,8 @@ public class RegistroDTO {
     private String password;
     private String tipoRol;
 
-    // Constructor vacío
     public RegistroDTO() {}
 
-    // Constructor con parámetros
     public RegistroDTO(String username, String email, String password, String tipoRol) {
         this.username = username;
         this.email = email;
@@ -27,7 +25,6 @@ public class RegistroDTO {
         this.tipoRol = tipoRol;
     }
 
-    // Getters y setters
     public String getUsername() {
         return username;
     }

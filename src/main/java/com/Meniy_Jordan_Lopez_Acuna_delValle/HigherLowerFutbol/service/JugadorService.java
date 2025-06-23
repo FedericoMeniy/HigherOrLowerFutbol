@@ -1,5 +1,3 @@
-// Archivo: src/main/java/com/Meniy_Jordan_Lopez_Acuna_delValle/HigherLowerFutbol/service/JugadorService.java
-
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service;
 
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.dto.AuthenticationResponse;
@@ -29,28 +27,27 @@ public class JugadorService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse registrarJugador(RegistroDTO request) {
-        if (jugadorRepository.existsByUsername(request.getUsername())) { //
+        if (jugadorRepository.existsByUsername(request.getUsername())) {
             throw new IllegalStateException("El nombre de usuario ya existe.");
         }
 
-        if (jugadorRepository.existsByEmail(request.getEmail())) { //
+        if (jugadorRepository.existsByEmail(request.getEmail())) {
             throw new IllegalStateException("El email ya se encuentra registrado.");
         }
 
         var jugador = new Jugador();
-        jugador.setUsername(request.getUsername()); //
-        jugador.setEmail(request.getEmail()); //
-        jugador.setPassword(passwordEncoder.encode(request.getPassword())); //
+        jugador.setUsername(request.getUsername());
+        jugador.setEmail(request.getEmail());
+        jugador.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        // Asigna un rol por defecto. Puedes cambiar esto si lo manejas desde el DTO.
-        jugador.setTipoRol("USER"); //
+
+        jugador.setTipoRol("USER");
 
         jugadorRepository.save(jugador);
 
-        // --- INICIO DE LA MODIFICACIÓN ---
-// Creamos un mapa de claims para añadir datos extra al token
+
         java.util.Map<String, Object> extraClaims = new java.util.HashMap<>();
-        extraClaims.put("userId", jugador.getId()); // Añadimos el ID del jugador
+        extraClaims.put("userId", jugador.getId());
 
         var jwtToken = jwtService.generateToken(extraClaims, jugador);
         return AuthenticationResponse.builder().token(jwtToken).build();
@@ -61,12 +58,11 @@ public class JugadorService {
                 .orElseThrow(() -> new BadCredentialsException("El email no se encuentra registrado.")); //
 
         if (!passwordEncoder.matches(request.getPassword(), jugador.getPassword())) {
-            // Lanza excepción si la contraseña no coincide
+
             throw new BadCredentialsException("La contraseña es incorrecta.");
         }
 
-        // El authenticationManager se encarga de verificar las credenciales usando
-        // el UserDetailsService y PasswordEncoder que configuramos.
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -74,10 +70,9 @@ public class JugadorService {
                 )
         );
 
-        // --- INICIO DE LA MODIFICACIÓN ---
-// Creamos un mapa de claims para añadir datos extra al token
+
         java.util.Map<String, Object> extraClaims = new java.util.HashMap<>();
-        extraClaims.put("userId", jugador.getId()); // Añadimos el ID del jugador
+        extraClaims.put("userId", jugador.getId());
 
         var jwtToken = jwtService.generateToken(extraClaims, jugador);
         return AuthenticationResponse.builder()

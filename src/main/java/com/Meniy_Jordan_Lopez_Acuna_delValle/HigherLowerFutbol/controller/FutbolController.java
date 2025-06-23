@@ -2,6 +2,11 @@ package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.controller;
 
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service.FutbolApiService;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service.FutbolistaDataSyncService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 @RestController
 @RequestMapping("/apii/futbol")
+@Tag(name = "API de Futbolistas (Externa)", description = "Endpoints para interactuar directamente con la API de api-sports.io")
 public class FutbolController {
 
     private FutbolApiService futbolApiService;
@@ -38,56 +44,32 @@ public class FutbolController {
         this.syncService = syncService;
     }
 
-    /*
-        @PostMapping("/sync/liga/{ligaId}/temporada/{temporada}")
-        public ResponseEntity<String> sincronizarLigaCompleta(@PathVariable int ligaId, @PathVariable int temporada) {
-            new Thread(() -> syncService.sincronizarLigaEntera(ligaId, temporada)).start();
-            return ResponseEntity.ok("Sincronización de la liga " + ligaId + " iniciada en segundo plano.");
-        }
-    */
+
+    @Operation(summary = "Obtener datos de un jugador por ID y temporada",
+            description = "Consulta la API externa para obtener la información y estadísticas de un jugador específico para una temporada determinada.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Datos del jugador en formato JSON obtenidos con éxito"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor o al comunicarse con la API externa")
+    })
     @GetMapping("/jugador/id/{jugadorId}/temporada/{temporadaId}")
-    public ResponseEntity<String>jugadorPorId(@PathVariable int jugadorId, @PathVariable int temporadaId){
+    public ResponseEntity<String>jugadorPorId(@Parameter(description = "ID del jugador en la API de api-sports.io", required = true, example = "276")
+                                                  @PathVariable int jugadorId,
+                                              @Parameter(description = "Año de la temporada a consultar", required = true, example = "2021")
+                                                  @PathVariable int temporadaId){
         String json = futbolApiService.obtenerJugadorPorId(jugadorId, temporadaId);
         return ResponseEntity.ok(json);
     }
 
-
-    /*
-    @GetMapping("/{ligaId}/{temporada}")
-    public ResponseEntity<String> traerEquipos(@PathVariable int ligaId, @PathVariable int temporada) {
-        String json = futbolApiService.obtenerEquiposPorLiga(ligaId, temporada);
-        return ResponseEntity.ok(json);
-    }
-     */
-
+    @Operation(summary = "Obtener la plantilla de un equipo por ID",
+            description = "Consulta la API externa para obtener la lista de todos los jugadores que pertenecen a un equipo específico.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Plantilla del equipo en formato JSON obtenida con éxito"),
+            @ApiResponse(responseCode = "500", description = "Error interno del servidor o al comunicarse con la API externa")
+    })
     @GetMapping("/{equipoId}")
-    public ResponseEntity<String> traerJugadores(@PathVariable int equipoId){
+    public ResponseEntity<String> traerJugadores(@Parameter(description = "ID del equipo en la API de api-sports.io", required = true, example = "40")
+                                                     @PathVariable int equipoId){
         String json = futbolApiService.obtenerJugadorPorLiga(equipoId);
         return ResponseEntity.ok(json);
     }
-
-    /*
-    @PostMapping("/sync/equipo/{equipoId}/temporada/{temporada}")
-    public ResponseEntity<String> sincronizarEquipo(
-            @PathVariable int equipoId,
-            @PathVariable int temporada) {
-        try {
-            // Ahora 'syncService' es reconocido y no dará error
-            syncService.sincronizarJugadoresDeEquipo(equipoId, temporada);
-            return ResponseEntity.ok("Sincronización del equipo " + equipoId + " iniciada correctamente.");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error durante la sincronización: " + e.getMessage());
-        }
-    }
-        */
-    /*
-    @GetMapping("/jugador/{jugadorId}/temporada/{temporadaId}")
-    public ResponseEntity<String>obtenerJugadorEstadi(@PathVariable int jugadorId, @PathVariable int temporadaId){
-        String json = futbolApiService.obtenerEstadisticaJugador(jugadorId, temporadaId);
-        return ResponseEntity.ok(json);
-    }
-     */
-
-
 }

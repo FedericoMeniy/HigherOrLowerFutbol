@@ -5,6 +5,12 @@ import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.DetalleTor
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity.Torneo;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.exceptions.TorneoException;
 import com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.service.TorneoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,21 +20,30 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/torneo") //
+@RequestMapping("/torneo")
+@Tag(name = "Gestión de Torneos", description = "Endpoints para crear, listar, unirse y administrar torneos de jugadores.")
 public class TorneoController {
 
     @Autowired
     private TorneoService torneoService;
 
-    // Endpoint para obtener torneos disponibles
+    @Operation(summary = "Listar torneos disponibles", description = "Devuelve una lista de torneos filtrados por tipo (ADMIN o PRIVADO) y opcionalmente por nombre.")
+    @ApiResponses(value = @ApiResponse(responseCode = "200", description = "Lista de torneos obtenida con éxito"))
     @GetMapping("/disponibles")
     public ResponseEntity<List<TorneoDisponibleDTO>> getTorneosDisponibles(
-            @RequestParam String tipo,
-            @RequestParam(required = false) String nombre) { // Se añadió este parámetro
+            @Parameter(description = "Tipo de torneo a filtrar: 'ADMIN' o 'PRIVADO'", required = true, example = "PRIVADO") @RequestParam String tipo,
+            @Parameter(description = "Filtro opcional por nombre del torneo (no sensible a mayúsculas)") @RequestParam(required = false) String nombre) { // Se añadió este parámetro
         List<TorneoDisponibleDTO> torneos = torneoService.getTorneosDisponiblesPorTipo(tipo, nombre); // Se pasa el nuevo parámetro al servicio
         return ResponseEntity.ok(torneos);
     }
 
+    @Operation(summary = "Crear un torneo privado (de amigos)", description = "Crea un nuevo torneo privado con contraseña. Requiere autenticación.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Torneo creado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Error en la solicitud (ej: nombre de torneo ya existe)"),
+            @ApiResponse(responseCode = "401", description = "No autenticado")
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/crear-amigos")
     public ResponseEntity<?> crearTorneoAmigos(@RequestBody TorneoDTO torneoDTO, Principal principal) {
         try {
@@ -42,6 +57,11 @@ public class TorneoController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+    @Operation(summary = "Ver la tabla de posiciones (leaderboard) de un torneo", description = "Obtiene la lista de participantes de un torneo, ordenada por puntaje descendente.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Leaderboard obtenida con éxito"),
+            @ApiResponse(responseCode = "400", description = "Error en la solicitud (ej: el torneo no existe)")
+    })
     @GetMapping("/{torneoId}/leaderboard")
     public ResponseEntity<List<DetalleTorneo>> getLeaderboard(@PathVariable Long torneoId) {
         try {
@@ -51,12 +71,18 @@ public class TorneoController {
             return ResponseEntity.badRequest().body(null);
         }
     }
+    @Operation(summary = "Unirse a un torneo privado", description = "Permite a un jugador unirse a un torneo privado usando la contraseña. Requiere autenticación.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Unión al torneo exitosa"),
+            @ApiResponse(responseCode = "400", description = "Error (ej: contraseña incorrecta, jugador ya inscrito)"),
+            @ApiResponse(responseCode = "401", description = "No autenticado")
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/{torneoId}/unirse")
     public ResponseEntity<?> unirseATorneo(@PathVariable Long torneoId,
                                            @RequestBody UnirseTorneoDTO dto,
                                            Principal principal) {
         try {
-            // Pasar el email del usuario autenticado al servicio
             Torneo torneoActualizado = torneoService.unirseTorneo(torneoId, dto, principal.getName());
             return ResponseEntity.ok(torneoActualizado);
         } catch (RuntimeException e) {
@@ -64,6 +90,14 @@ public class TorneoController {
         }
     }
 
+    @Operation(summary = "Finalizar un torneo y repartir premios (Solo Admins)", description = "Marca un torneo como finalizado y reparte los premios a los ganadores. Requiere rol de Administrador.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Torneo finalizado y premios repartidos"),
+            @ApiResponse(responseCode = "400", description = "Error (ej: el torneo no es de tipo Admin)"),
+            @ApiResponse(responseCode = "401", description = "No autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado")
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/{torneoId}/finalizar")
     public ResponseEntity<?> finalizarTorneo(@PathVariable Long torneoId) {
         try {
@@ -74,6 +108,14 @@ public class TorneoController {
         }
     }
 
+    @Operation(summary = "Crear un torneo oficial (Solo Admins)", description = "Crea un nuevo torneo oficial con costo y premio. Requiere rol de Administrador.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Torneo oficial creado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Error en la solicitud"),
+            @ApiResponse(responseCode = "401", description = "No autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado (no es Admin)")
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/crear-oficial")
     public ResponseEntity<?> crearTorneoOficial(@RequestBody TorneoOficialDTO torneoDTO, Principal principal) {
         try {
@@ -87,14 +129,19 @@ public class TorneoController {
         }catch(TorneoException e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }catch (SecurityException e) {
-            // Atrapamos específicamente el error de seguridad si un no-admin intenta crear el torneo
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         }catch (Exception e) {
-            // Atrapamos otros errores generales
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
+    @Operation(summary = "Unirse a un torneo oficial", description = "Permite a un jugador unirse a un torneo oficial, descontando los puntos de entrada. Requiere autenticación.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Unión al torneo exitosa"),
+            @ApiResponse(responseCode = "400", description = "Error (ej: no tienes suficientes puntos, torneo no activo)"),
+            @ApiResponse(responseCode = "401", description = "No autenticado")
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/{torneoId}/unirse-oficial")
     public ResponseEntity<?> unirseATorneoOficial(@PathVariable Long torneoId, Principal principal) {
         try {
@@ -102,17 +149,23 @@ public class TorneoController {
                 return ResponseEntity.status(401).body("Debes iniciar sesión para unirte a un torneo.");
             }
 
-            // La lógica no cambia, principal.getName() sigue devolviendo el email.
-            // Solo actualizamos la llamada para que coincida con la firma del método del servicio.
             Torneo torneoActualizado = torneoService.unirseATorneoOficial(torneoId, principal.getName());
             return ResponseEntity.ok(torneoActualizado);
 
         } catch (RuntimeException e) {
-            // Atrapa errores como "Torneo no encontrado", "No tienes suficientes puntos", etc.
+
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
+    @Operation(summary = "Actualizar un torneo oficial (Solo Admins)", description = "Permite a un administrador modificar el premio y/o costo de un torneo. Requiere rol de Administrador.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Torneo actualizado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Error en la solicitud"),
+            @ApiResponse(responseCode = "401", description = "No autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado (no es Admin)")
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @PutMapping("/{torneoId}/actualizar-oficial")
     public ResponseEntity<?> actualizarTorneoOficial(@PathVariable Long torneoId, @RequestBody ActualizarTorneoOficialDTO dto, Principal principal) {
 
@@ -129,35 +182,42 @@ public class TorneoController {
         }
     }
 
+    @Operation(summary = "Eliminar un torneo (Solo Admins)", description = "Elimina un torneo de forma permanente. Requiere rol de Administrador.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Torneo eliminado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Error (ej: el torneo no fue encontrado)"),
+            @ApiResponse(responseCode = "401", description = "No autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acceso denegado (no es Admin)")
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @DeleteMapping("/{torneoId}/eliminar")
     public ResponseEntity<?> eliminarTorneo(@PathVariable Long torneoId, Principal principal) {
         try {
-            // Validación de seguridad: nos aseguramos de que haya un usuario logueado.
+
             if (principal == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No estás autenticado.");
             }
 
-            // 1. Llamamos al método del servicio, pasándole el ID del torneo
-            //    y el nombre del usuario que realiza la acción para la validación de rol.
             torneoService.eliminarTorneo(torneoId, principal.getName());
 
-            // 2. Si la eliminación es exitosa, devolvemos una respuesta 200 OK
-            //    con un mensaje de confirmación.
             return ResponseEntity.ok("Torneo eliminado exitosamente.");
 
         } catch (SecurityException e) {
-            // CASO 1: Atrapamos específicamente el error de permisos.
-            // Es una buena práctica devolver un código 403 Forbidden para este caso.
+
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
 
         } catch (RuntimeException e) {
-            // CASO 2: Atrapamos cualquier otro error de ejecución
-            // (como "Torneo no encontrado") y devolvemos un 400 Bad Request.
+
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    // --- NUEVO ENDPOINT 1 ---
+    @Operation(summary = "Obtener los torneos en los que un jugador está inscrito", description = "Requiere autenticación.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de torneos inscritos obtenida con éxito"),
+            @ApiResponse(responseCode = "401", description = "No autenticado")
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/inscriptos")
     public ResponseEntity<List<TorneoDisponibleDTO>> getTorneosInscritos(Principal principal) {
         if (principal == null) {
@@ -167,7 +227,12 @@ public class TorneoController {
         return ResponseEntity.ok(torneos);
     }
 
-    // --- NUEVO ENDPOINT 2 ---
+    @Operation(summary = "Obtener los torneos creados por un jugador", description = "Requiere autenticación.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de torneos creados obtenida con éxito"),
+            @ApiResponse(responseCode = "401", description = "No autenticado")
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/creados")
     public ResponseEntity<List<TorneoDisponibleDTO>> getTorneosCreados(Principal principal) {
         if (principal == null) {

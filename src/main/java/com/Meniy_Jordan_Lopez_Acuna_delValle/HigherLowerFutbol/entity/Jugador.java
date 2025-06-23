@@ -1,5 +1,3 @@
-// Archivo: src/main/java/com/Meniy_Jordan_Lopez_Acuna_delValle/HigherLowerFutbol/entity/Jugador.java
-
 package com.Meniy_Jordan_Lopez_Acuna_delValle.HigherLowerFutbol.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -33,7 +31,7 @@ public class Jugador implements UserDetails {
 
     private String password;
 
-    private String tipoRol; // Ejemplo: "USER", "ADMIN"
+    private String tipoRol;
 
     @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
     private int puntaje = 0;
@@ -42,19 +40,15 @@ public class Jugador implements UserDetails {
     @JsonBackReference
     private List<Torneo> torneos;
 
-
-    // --- Métodos de la interfaz UserDetails ---
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Usamos el campo tipoRol para definir la autoridad del usuario.
+
         return List.of(new SimpleGrantedAuthority(tipoRol));
     }
 
     @Override
     public String getUsername() {
-        // Spring Security usará este método para obtener el identificador del usuario.
-        // Usamos el email porque es único y es lo que pedimos en el login.
+
         return email;
     }
 
@@ -69,25 +63,25 @@ public class Jugador implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        // Devolvemos true para indicar que la cuenta nunca expira.
+
         return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        // Devolvemos true para indicar que la cuenta no está bloqueada.
+
         return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        // Devolvemos true para indicar que las credenciales no expiran.
+
         return true;
     }
 
     @Override
     public boolean isEnabled() {
-        // Devolvemos true para indicar que la cuenta está habilitada.
+
         return true;
     }
 }

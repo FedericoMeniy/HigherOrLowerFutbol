@@ -36,7 +36,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(withDefaults())
-                .csrf(AbstractHttpConfigurer::disable) // Deshabilita CSRF para una API REST sin estado
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         // Endpoints públicos que no requieren autenticación
                         .requestMatchers("/auth/**", "/juego/ronda", "/apii/futbol/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
@@ -78,7 +78,6 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        // Establece el servicio que carga los detalles del usuario
         authProvider.setUserDetailsService(userDetailsService);
         // Establece el codificador de contraseñas
         authProvider.setPasswordEncoder(passwordEncoder());

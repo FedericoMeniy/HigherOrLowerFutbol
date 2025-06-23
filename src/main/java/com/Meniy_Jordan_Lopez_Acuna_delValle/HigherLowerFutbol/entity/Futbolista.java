@@ -16,7 +16,7 @@ public class Futbolista {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true)      ///para evitar repetidos en la base de datos con la id api
+    @Column(unique = true)
     private Integer idApi;
     private String nombre;
     private String imagenURL;
