@@ -35,6 +35,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
+        final String requestURI = request.getRequestURI();
+
+        // Comprobamos si la ruta es para Swagger.
+        if (requestURI.startsWith("/swagger-ui") || requestURI.startsWith("/v3/api-docs")) {
+            // Si es una ruta de Swagger, le decimos al filtro que la ignore
+            // y la pase directamente al siguiente filtro de la cadena, sin hacer
+            // ninguna validación de JWT.
+            filterChain.doFilter(request, response);
+            return; // ¡Importante! 'return' para salir del método aquí.
+        }
 
         logger.info("==> Iniciando filtro JWT para la petición: {}", request.getRequestURI());
 
