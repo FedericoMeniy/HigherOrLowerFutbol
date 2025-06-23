@@ -38,6 +38,7 @@ public class JuegoController {
         }
     }
 
+    //ronda para jugar en el torneo
     @GetMapping("/{torneoId}/nueva-ronda")
     public ResponseEntity<RondaResultado> nuevaRondaDeTorneo(@PathVariable Long torneoId) {
         try {

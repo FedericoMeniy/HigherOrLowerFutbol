@@ -28,7 +28,7 @@ public class TorneoController {
         List<TorneoDisponibleDTO> torneos = torneoService.getTorneosDisponiblesPorTipo(tipo, nombre); // Se pasa el nuevo parámetro al servicio
         return ResponseEntity.ok(torneos);
     }
-    // El resto de los endpoints ahora también estarán bajo /api/torneos
+
     @PostMapping("/crear-amigos")
     public ResponseEntity<?> crearTorneoAmigos(@RequestBody TorneoDTO torneoDTO, Principal principal) {
         try {
@@ -112,6 +112,7 @@ public class TorneoController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
     @PutMapping("/{torneoId}/actualizar-oficial")
     public ResponseEntity<?> actualizarTorneoOficial(@PathVariable Long torneoId, @RequestBody ActualizarTorneoOficialDTO dto, Principal principal) {
 
@@ -127,6 +128,7 @@ public class TorneoController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
     @DeleteMapping("/{torneoId}/eliminar")
     public ResponseEntity<?> eliminarTorneo(@PathVariable Long torneoId, Principal principal) {
         try {

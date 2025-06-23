@@ -47,7 +47,12 @@ public class JugadorService {
 
         jugadorRepository.save(jugador);
 
-        var jwtToken = jwtService.generateToken(jugador);
+        // --- INICIO DE LA MODIFICACIÓN ---
+// Creamos un mapa de claims para añadir datos extra al token
+        java.util.Map<String, Object> extraClaims = new java.util.HashMap<>();
+        extraClaims.put("userId", jugador.getId()); // Añadimos el ID del jugador
+
+        var jwtToken = jwtService.generateToken(extraClaims, jugador);
         return AuthenticationResponse.builder().token(jwtToken).build();
     }
 
@@ -69,7 +74,12 @@ public class JugadorService {
                 )
         );
 
-        var jwtToken = jwtService.generateToken(jugador);
+        // --- INICIO DE LA MODIFICACIÓN ---
+// Creamos un mapa de claims para añadir datos extra al token
+        java.util.Map<String, Object> extraClaims = new java.util.HashMap<>();
+        extraClaims.put("userId", jugador.getId()); // Añadimos el ID del jugador
+
+        var jwtToken = jwtService.generateToken(extraClaims, jugador);
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .tipoRol(jugador.getTipoRol())
