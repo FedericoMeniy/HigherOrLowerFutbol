@@ -39,7 +39,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         // Endpoints públicos que no requieren autenticación
-                        .requestMatchers("/auth/**", "/juego/ronda", "/apii/futbol/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/","/auth/**", "/juego/ronda", "/apii/futbol/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         // Endpoints que requieren que el usuario esté autenticado
                         .requestMatchers("/juego/guardar-puntaje", "/perfil/**", "/torneo/inscriptos", "/torneo/creados").authenticated()
                         // Cualquier otra petición no definida anteriormente requiere autenticación
